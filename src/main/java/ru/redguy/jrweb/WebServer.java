@@ -1,5 +1,7 @@
 package ru.redguy.jrweb;
 
+import ru.redguy.jrweb.utils.*;
+
 import java.io.IOException;
 import java.net.ServerSocket;
 
@@ -11,6 +13,7 @@ public class WebServer {
     private ServerSocketThread socket;
     private final WebServerOptions options;
     private boolean started = false;
+    private Router rootRouter;
 
 
     public WebServer() {
@@ -19,6 +22,7 @@ public class WebServer {
 
     public WebServer(WebServerOptions options) {
         this.options = options;
+        this.rootRouter = new Router();
     }
 
     public WebServerOptions getOptions() {
@@ -40,7 +44,7 @@ public class WebServer {
      */
     public boolean start(int port) throws IOException {
         if(started) return false;
-        socket = new ServerSocketThread(new ServerSocket(port, options.getSocketBacklog()));
+        socket = new ServerSocketThread(this,new ServerSocket(port, options.getSocketBacklog()));
         socket.start();
         started = true;
         return true;
@@ -61,5 +65,25 @@ public class WebServer {
         if(!started) return false;
         socket.close();
         return true;
+    }
+
+    protected void processRequest(Context context) {
+        rootRouter.processRequest(context);
+    }
+
+    public Middleware addMiddleware(Middleware middleware) {
+        rootRouter.add(middleware);
+        return middleware;
+    }
+
+    public Middleware addMiddleware(ContextRunner runner) {
+        Middleware middleware = new Middleware(runner);
+        rootRouter.add(middleware);
+        return middleware;
+    }
+
+    public Page addPage(Page page) {
+        rootRouter.add(page);
+        return page;
     }
 }

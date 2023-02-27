@@ -13,11 +13,13 @@ import java.util.concurrent.Executors;
  * @author RedGuy
  */
 public class ServerSocketThread extends Thread {
+    private final WebServer webServer;
     private final ServerSocket socket;
     private final ExecutorService executorService = Executors.newCachedThreadPool();
     public boolean closing = false;
 
-    public ServerSocketThread(ServerSocket socket) {
+    public ServerSocketThread(WebServer webServer, ServerSocket socket) {
+        this.webServer = webServer;
         this.socket = socket;
     }
 
@@ -25,7 +27,7 @@ public class ServerSocketThread extends Thread {
     public void run() {
         while (!closing) {
             try {
-                executorService.submit(new ClientSocketThread(socket.accept()));
+                executorService.submit(new ClientSocketThread(webServer,socket.accept()));
             } catch (SocketException e) {
                 break;
             } catch (IOException e) {
