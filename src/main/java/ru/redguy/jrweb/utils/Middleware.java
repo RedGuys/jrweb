@@ -6,11 +6,17 @@ import java.util.regex.Pattern;
 
 public class Middleware {
 
+    private Method method = null;
     private Pattern regex = Pattern.compile("");
     private MiddlewarePosition position = MiddlewarePosition.BEFORE;
     private final ContextRunner runner;
 
     public Middleware(ContextRunner runner) {
+        this.runner = runner;
+    }
+
+    public Middleware(Method method, ContextRunner runner) {
+        this.method = method;
         this.runner = runner;
     }
 
@@ -24,8 +30,15 @@ public class Middleware {
         return this;
     }
 
+    public Middleware setMethod(Method method) {
+        this.method = method;
+        return this;
+    }
+
     public void processRequest(MiddlewarePosition position, @NotNull Context context) {
-        if((regex.matcher(context.request.url).matches()||regex.toString().equals("")) && (this.position == position || this.position == MiddlewarePosition.BOTH))
+        if ((regex.matcher(context.request.url).matches() || regex.toString().equals(""))
+                && (this.position == position || this.position == MiddlewarePosition.BOTH)
+                && (method == null || method.equals(context.request.method)))
             runner.run(context);
     }
 }

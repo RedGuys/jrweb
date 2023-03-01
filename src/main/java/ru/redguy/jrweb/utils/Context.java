@@ -10,5 +10,5 @@ public class Context {
     }
 
     boolean cancelled = false;
-    boolean processed = false;
+    public boolean processed = false;
 }

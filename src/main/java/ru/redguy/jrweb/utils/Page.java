@@ -5,6 +5,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.regex.Pattern;
 
 public class Page {
+    private Method method = null;
     private final Pattern regex;
     private final ContextRunner runner;
 
@@ -13,8 +14,14 @@ public class Page {
         this.runner = runner;
     }
 
+    public Page(Method method, String regex, ContextRunner runner) {
+        this.method = method;
+        this.regex = Pattern.compile(regex);
+        this.runner = runner;
+    }
+
     public void processRequest(@NotNull Context context) {
-        if(regex.matcher(context.request.url).matches()) {
+        if(regex.matcher(context.request.url).matches()&& (method == null || method.equals(context.request.method))) {
             runner.run(context);
             context.processed = true;
         }

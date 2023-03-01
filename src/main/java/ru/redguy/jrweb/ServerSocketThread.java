@@ -1,7 +1,5 @@
 package ru.redguy.jrweb;
 
-import sun.nio.ch.ThreadPool;
-
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.SocketException;
