@@ -35,10 +35,14 @@ public class Middleware {
         return this;
     }
 
-    public void processRequest(MiddlewarePosition position, @NotNull Context context) {
-        if ((regex.matcher(context.request.url).matches() || regex.toString().equals(""))
+    public void processRequest(String path, MiddlewarePosition position, @NotNull Context context) {
+        if ((regex.matcher(path).matches() || regex.toString().equals(""))
                 && (this.position == position || this.position == MiddlewarePosition.BOTH)
                 && (method == null || method.equals(context.request.method)))
             runner.run(context);
+    }
+
+    public Pattern getRegex() {
+        return regex;
     }
 }

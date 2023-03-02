@@ -21,5 +21,11 @@ public class SimpleWebServer {
             ctx.response.setStatusCode(StatusCodes.OK);
             ctx.response.send("<html><body>POST ONLY</body></html>");
         }));
+
+        Router router = server.addRouter(new Router("/route"));
+        router.add(new Page("/test",(ctx) -> {
+            ctx.response.setStatusCode(StatusCodes.OK);
+            ctx.response.send("<html><body>Route test</body></html>");
+        }));
     }
 }

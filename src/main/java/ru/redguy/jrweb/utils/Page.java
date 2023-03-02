@@ -20,10 +20,14 @@ public class Page {
         this.runner = runner;
     }
 
-    public void processRequest(@NotNull Context context) {
-        if(regex.matcher(context.request.url).matches()&& (method == null || method.equals(context.request.method))) {
+    public void processRequest(String path,@NotNull Context context) {
+        if(regex.matcher(path).matches()&& (method == null || method.equals(context.request.method))) {
             runner.run(context);
             context.processed = true;
         }
+    }
+
+    public Pattern getRegex() {
+        return regex;
     }
 }

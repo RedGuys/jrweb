@@ -70,7 +70,7 @@ public class WebServer {
     }
 
     protected void processRequest(Context context) {
-        rootRouter.processRequest(context);
+        rootRouter.processRequest("",context);
 
         if (!context.processed) {
             context.response.setStatusCode(StatusCodes.NOT_FOUND);
@@ -98,5 +98,10 @@ public class WebServer {
     public Page addPage(Page page) {
         rootRouter.add(page);
         return page;
+    }
+
+    public Router addRouter(Router router) {
+        rootRouter.add(router);
+        return router;
     }
 }

@@ -15,24 +15,31 @@ public class Router {
     List<Page> pages = new ArrayList<>();
     List<Router> routers = new ArrayList<>();
 
-    public void processRequest(@NotNull Context context) {
-        if(!pattern.matcher(context.request.url).matches()&& !Objects.equals(pattern.toString(), ""))
+    public Router() {
+    }
+
+    public Router(String pattern) {
+        this.pattern = Pattern.compile(pattern);
+    }
+
+    public void processRequest(@NotNull String path, @NotNull Context context) {
+        if (!pattern.matcher(context.request.url.substring(path.length())).find() && !Objects.equals(pattern.toString(), ""))
             return;
 
         for (Middleware middleware : middlewares) {
-            middleware.processRequest(MiddlewarePosition.BEFORE,context);
+            middleware.processRequest(context.request.url.substring(path.length()+pattern.toString().length()), MiddlewarePosition.BEFORE, context);
         }
 
-        if(!context.cancelled) {
+        if (!context.cancelled) {
             for (Router router : routers) {
-                router.processRequest(context);
+                router.processRequest(path+pattern.toString(), context);
                 if (context.processed)
                     break;
             }
 
-            if(!context.processed) {
+            if (!context.processed) {
                 for (Page page : pages) {
-                    page.processRequest(context);
+                    page.processRequest(context.request.url.substring(path.length()+pattern.toString().length()), context);
                     if (context.processed)
                         break;
                 }
@@ -40,7 +47,7 @@ public class Router {
         }
 
         for (Middleware middleware : middlewares) {
-            middleware.processRequest(MiddlewarePosition.AFTER, context);
+            middleware.processRequest(context.request.url.substring(path.length()+pattern.toString().length()), MiddlewarePosition.AFTER, context);
         }
     }
 
