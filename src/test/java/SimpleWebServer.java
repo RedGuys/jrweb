@@ -38,6 +38,8 @@ public class SimpleWebServer {
             byte[] bytes = readAllBytes(is);
             ctx.response.send(bytes);
         }));
+
+        server.addRouter(new RouterClass());
     }
 
     public static byte[] readAllBytes(InputStream inputStream) throws IOException {

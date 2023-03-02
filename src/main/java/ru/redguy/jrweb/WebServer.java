@@ -1,8 +1,10 @@
 package ru.redguy.jrweb;
 
+import org.jetbrains.annotations.NotNull;
 import ru.redguy.jrweb.utils.*;
 
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.net.ServerSocket;
 
 /**
@@ -102,6 +104,45 @@ public class WebServer {
 
     public Router addRouter(Router router) {
         rootRouter.add(router);
+        return router;
+    }
+
+    public Router addRouter(@NotNull Object object) {
+        ru.redguy.jrweb.annotations.Router routerAnnotation = object.getClass().getAnnotation(ru.redguy.jrweb.annotations.Router.class);
+        if (routerAnnotation == null) throw new IllegalArgumentException("Object must have @Router annotation");
+        Router router = new Router(routerAnnotation.value());
+        rootRouter.add(router);
+
+        for (java.lang.reflect.Method method : object.getClass().getDeclaredMethods()) {
+            if(method.getParameterCount() != 1) continue;
+            if(method.getParameterTypes()[0].isAssignableFrom(Context.class)) {
+                if(method.isAnnotationPresent(ru.redguy.jrweb.annotations.Middleware.class)) {
+                    ru.redguy.jrweb.annotations.Middleware middlewareAnnotation = method.getAnnotation(ru.redguy.jrweb.annotations.Middleware.class);
+                    if (middlewareAnnotation == null) continue;
+                    Middleware middleware = new Middleware(Methods.getMethod(middlewareAnnotation.method()), context -> {
+                        try {
+                            method.invoke(object, context);
+                        } catch (IllegalAccessException | InvocationTargetException e) {
+                            e.printStackTrace();
+                        }
+                    });
+                    router.add(middleware);
+                }
+                if(method.isAnnotationPresent(ru.redguy.jrweb.annotations.Page.class)) {
+                    ru.redguy.jrweb.annotations.Page pageAnnotation = method.getAnnotation(ru.redguy.jrweb.annotations.Page.class);
+                    if (pageAnnotation == null) continue;
+                    Page page = new Page(Methods.getMethod(pageAnnotation.method()), pageAnnotation.value(), context -> {
+                        try {
+                            method.invoke(object, context);
+                        } catch (IllegalAccessException | InvocationTargetException e) {
+                            e.printStackTrace();
+                        }
+                    });
+                    router.add(page);
+                }
+            }
+        }
+
         return router;
     }
 }
