@@ -2,6 +2,7 @@ package ru.redguy.jrweb.utils;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.io.IOException;
 import java.util.regex.Pattern;
 
 public class Middleware {
@@ -35,7 +36,7 @@ public class Middleware {
         return this;
     }
 
-    public void processRequest(MiddlewarePosition position, @NotNull Context context) {
+    public void processRequest(MiddlewarePosition position, @NotNull Context context) throws IOException {
         if ((regex.matcher(context.request.url).matches() || regex.toString().equals(""))
                 && (this.position == position || this.position == MiddlewarePosition.BOTH)
                 && (method == null || method.equals(context.request.method)))

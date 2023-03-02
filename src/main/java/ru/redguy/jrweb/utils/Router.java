@@ -2,6 +2,7 @@ package ru.redguy.jrweb.utils;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -19,28 +20,36 @@ public class Router {
         if(!pattern.matcher(context.request.url).matches()&& !Objects.equals(pattern.toString(), ""))
             return;
 
-        for (Middleware middleware : middlewares) {
-            middleware.processRequest(MiddlewarePosition.BEFORE,context);
-        }
-
-        if(!context.cancelled) {
-            for (Router router : routers) {
-                router.processRequest(context);
-                if (context.processed)
-                    break;
+        try {
+            for (Middleware middleware : middlewares) {
+                middleware.processRequest(MiddlewarePosition.BEFORE, context);
             }
 
-            if(!context.processed) {
-                for (Page page : pages) {
-                    page.processRequest(context);
+            if (!context.cancelled) {
+                for (Router router : routers) {
+                    router.processRequest(context);
                     if (context.processed)
                         break;
                 }
-            }
-        }
 
-        for (Middleware middleware : middlewares) {
-            middleware.processRequest(MiddlewarePosition.AFTER, context);
+                if (!context.processed) {
+                    for (Page page : pages) {
+                        page.processRequest(context);
+                        if (context.processed)
+                            break;
+                    }
+                }
+            }
+
+            for (Middleware middleware : middlewares) {
+                middleware.processRequest(MiddlewarePosition.AFTER, context);
+            }
+        } catch (IOException e) {
+            if(!context.response.isHeadersSent()) {
+                context.response.setStatusCode(StatusCodes.INTERNAL_SERVER_ERROR);
+                context.response.send("Internal Server Error");
+            }
+            e.printStackTrace();
         }
     }
 

@@ -2,6 +2,7 @@ package ru.redguy.jrweb.utils;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.io.IOException;
 import java.util.regex.Pattern;
 
 public class Page {
@@ -20,7 +21,7 @@ public class Page {
         this.runner = runner;
     }
 
-    public void processRequest(@NotNull Context context) {
+    public void processRequest(@NotNull Context context) throws IOException {
         if(regex.matcher(context.request.url).matches()&& (method == null || method.equals(context.request.method))) {
             runner.run(context);
             context.processed = true;

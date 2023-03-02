@@ -30,7 +30,7 @@ public class ClientSocketThread implements Runnable {
     @Override
     public void run() {
         try {
-            Context context = new Context(new Request(bufferedReader), new Response(bufferedWriter));
+            Context context = new Context(new Request(bufferedReader), new Response(bufferedWriter, socket.getOutputStream()));
             webServer.processRequest(context);
             if(!context.response.isHeadersSent())
                 context.response.flushHeaders();

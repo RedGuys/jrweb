@@ -2,22 +2,37 @@ package ru.redguy.jrweb.utils;
 
 import java.io.BufferedWriter;
 import java.io.IOException;
+import java.io.OutputStream;
 
 public class Response {
 
     public StatusCode statusCode = StatusCodes.OK;
     private HeadersList headers = new HeadersList();
     public BufferedWriter writer;
+    public OutputStream outputStream;
     private boolean headersSent = false;
 
-    public Response(BufferedWriter writer) {
+    public Response(BufferedWriter writer, OutputStream outputStream) {
         this.writer = writer;
+        this.outputStream = outputStream;
     }
 
     public boolean send(String str) {
         if (!headersSent) flushHeaders();
         try {
             writer.write(str);
+            return true;
+        } catch (IOException e) {
+            return false;
+        }
+    }
+
+    public boolean send(byte[] bytes) {
+        if (!headersSent) flushHeaders();
+        try {
+            writer.flush();
+            outputStream.write(bytes);
+            outputStream.flush();
             return true;
         } catch (IOException e) {
             return false;
@@ -32,6 +47,7 @@ public class Response {
             writer.newLine();
             writer.write(headers.generate());
             writer.newLine();
+            writer.newLine(); //indicating the end of the header section
             headersSent = true;
         } catch (IOException e) {
             return;

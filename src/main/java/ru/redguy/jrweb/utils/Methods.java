@@ -16,17 +16,17 @@ public class Methods {
 
     @Contract(pure = true)
     public static Method getMethod(@NotNull String name) {
-        return switch (name) {
-            case "GET" -> GET;
-            case "POST" -> POST;
-            case "PUT" -> PUT;
-            case "DELETE" -> DELETE;
-            case "HEAD" -> HEAD;
-            case "OPTIONS" -> OPTIONS;
-            case "TRACE" -> TRACE;
-            case "CONNECT" -> CONNECT;
-            case "PATCH" -> PATCH;
-            default -> new Method(name);
-        };
+        switch (name) {
+            case "GET": return GET;
+            case "POST": return POST;
+            case "PUT": return PUT;
+            case "DELETE": return DELETE;
+            case "HEAD": return HEAD;
+            case "OPTIONS": return OPTIONS;
+            case "TRACE": return TRACE;
+            case "CONNECT": return CONNECT;
+            case "PATCH": return PATCH;
+            default: return new Method(name);
+        }
     }
 }
