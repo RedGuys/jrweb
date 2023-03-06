@@ -1,5 +1,7 @@
 package ru.redguy.jrweb.utils;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -13,7 +15,7 @@ import java.util.function.Consumer;
 public class HeadersList {
     private final List<HeaderValue> headers = new ArrayList<>();
 
-    public void add(HeaderValue headerValue, boolean replaceExisting) {
+    public void add(@NotNull HeaderValue headerValue, boolean replaceExisting) {
         if(!headerValue.getHeader().isAllowMultiple()) {
             for (HeaderValue value : headers) {
                 if (value.getHeader().getName().equals(headerValue.getHeader().getName())) {

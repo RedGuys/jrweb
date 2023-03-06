@@ -12,9 +12,9 @@ public class Router {
 
     protected Pattern pattern = Pattern.compile("");
 
-    List<Middleware> middlewares = new ArrayList<>();
-    List<Page> pages = new ArrayList<>();
-    List<Router> routers = new ArrayList<>();
+    protected List<Middleware> middlewares = new ArrayList<>();
+    protected List<Page> pages = new ArrayList<>();
+    protected List<Router> routers = new ArrayList<>();
 
     public Router() {
     }

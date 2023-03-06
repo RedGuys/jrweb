@@ -1,3 +1,4 @@
+import org.jetbrains.annotations.NotNull;
 import ru.redguy.jrweb.WebServer;
 import ru.redguy.jrweb.presets.FileRouter;
 import ru.redguy.jrweb.utils.*;
@@ -45,7 +46,7 @@ public class SimpleWebServer {
         server.addRouter(new RouterClass());
     }
 
-    public static byte[] readAllBytes(InputStream inputStream) throws IOException {
+    public static byte @NotNull [] readAllBytes(@NotNull InputStream inputStream) throws IOException {
         final int bufLen = 4 * 0x400; // 4KB
         byte[] buf = new byte[bufLen];
         int readLen;
