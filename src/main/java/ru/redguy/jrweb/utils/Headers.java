@@ -21,5 +21,6 @@ public class Headers {
         public static final Header LOCATION = new Header("Location").setAllowMultiple();
         public static final Header RETRY_AFTER = new Header("Retry-After");
         public static final Header MS_ECHO_REQUEST = new Header("MS-Echo-Request");
+        public static final Header CONTENT_LENGTH = new Header("Content-Length");
     }
 }

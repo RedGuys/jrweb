@@ -1,10 +1,11 @@
 import ru.redguy.jrweb.WebServer;
+import ru.redguy.jrweb.presets.FileRouter;
 import ru.redguy.jrweb.utils.*;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.file.Files;
+import java.nio.file.Paths;
 
 public class SimpleWebServer {
     public static void main(String[] args) throws IOException {
@@ -38,6 +39,8 @@ public class SimpleWebServer {
             byte[] bytes = readAllBytes(is);
             ctx.response.send(bytes);
         }));
+
+        server.addRouter(new FileRouter("/src", Paths.get("src")));
 
         server.addRouter(new RouterClass());
     }

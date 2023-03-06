@@ -10,7 +10,7 @@ import java.util.regex.Pattern;
 
 public class Router {
 
-    Pattern pattern = Pattern.compile("");
+    protected Pattern pattern = Pattern.compile("");
 
     List<Middleware> middlewares = new ArrayList<>();
     List<Page> pages = new ArrayList<>();
