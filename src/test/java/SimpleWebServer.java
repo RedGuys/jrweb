@@ -1,6 +1,7 @@
 import org.jetbrains.annotations.NotNull;
 import ru.redguy.jrweb.WebServer;
 import ru.redguy.jrweb.presets.FileRouter;
+import ru.redguy.jrweb.presets.ResourcesRouter;
 import ru.redguy.jrweb.utils.*;
 
 import java.io.ByteArrayOutputStream;
@@ -44,6 +45,8 @@ public class SimpleWebServer {
         server.addRouter(new FileRouter("/src", Paths.get("src")));
 
         server.addRouter(new RouterClass());
+
+        server.addRouter(new ResourcesRouter("/resources", "/"));
     }
 
     public static byte @NotNull [] readAllBytes(@NotNull InputStream inputStream) throws IOException {
