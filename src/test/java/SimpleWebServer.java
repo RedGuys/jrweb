@@ -47,6 +47,14 @@ public class SimpleWebServer {
         server.addRouter(new RouterClass());
 
         server.addRouter(new ResourcesRouter("/resources", "/"));
+
+        server.addPage(new Page("/headers",(ctx) -> {
+            ctx.response.send("<html><body>Headers:<br>");
+            ctx.request.headers.forEach((e) -> {
+                ctx.response.send(e.generate() + ": " + e.getValue() + "<br>");
+            });
+            ctx.response.send("</body></html>");
+        }));
     }
 
     public static byte @NotNull [] readAllBytes(@NotNull InputStream inputStream) throws IOException {

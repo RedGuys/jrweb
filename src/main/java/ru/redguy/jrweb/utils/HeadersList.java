@@ -34,6 +34,11 @@ public class HeadersList {
         add(headerValue, true);
     }
 
+    public void add(@NotNull String raw) {
+        String[] split = raw.split(":");
+        add(new HeaderValue(Headers.getHeader(split[0].trim()), split[1].trim()), false);
+    }
+
     public void add(Header header, String value, boolean replaceExisting) {
         add(new HeaderValue(header, value), replaceExisting);
     }

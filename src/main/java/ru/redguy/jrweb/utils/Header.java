@@ -14,6 +14,7 @@ public class Header {
      */
     public Header(String name) {
         this.name = name;
+        Headers.headers.add(this);
     }
 
     /**

@@ -8,6 +8,7 @@ public class Request {
     public Method method = Methods.GET;
 
     public String url = "/";
+    public HeadersList headers = new HeadersList();
 
     public Request(BufferedReader reader) throws IOException {
         this.reader = reader;
@@ -18,5 +19,9 @@ public class Request {
         String line = reader.readLine();
         method = Methods.getMethod(line.split(" ")[0]);
         url = line.split(" ")[1];
+
+        while (!(line = reader.readLine()).equals("")) {
+            headers.add(line);
+        }
     }
 }
