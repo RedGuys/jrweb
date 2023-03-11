@@ -36,9 +36,9 @@ public class SimpleWebServer {
 
         server.addPage(new Page(Methods.GET, "/file", (ctx) -> {
             ctx.response.setStatusCode(StatusCodes.OK);
-            ctx.response.getHeaders().add(Headers.Response.RETRY_AFTER, "10");
             InputStream is = SimpleWebServer.class.getResourceAsStream("rick.webp");
             byte[] bytes = readAllBytes(is);
+            ctx.response.getHeaders().add(Headers.Response.CONTENT_LENGTH, String.valueOf(bytes.length));
             ctx.response.send(bytes);
         }));
 
