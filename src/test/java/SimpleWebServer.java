@@ -1,4 +1,5 @@
 import org.jetbrains.annotations.NotNull;
+import ru.redguy.jrweb.Cookie;
 import ru.redguy.jrweb.WebServer;
 import ru.redguy.jrweb.presets.FileRouter;
 import ru.redguy.jrweb.presets.ResourcesRouter;
@@ -8,6 +9,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Paths;
+import java.util.UUID;
 
 public class SimpleWebServer {
     public static void main(String[] args) throws IOException {
@@ -54,6 +56,14 @@ public class SimpleWebServer {
                 ctx.response.send(e.generate() + ": " + e.getValue() + "<br>");
             });
             ctx.response.send("</body></html>");
+        }));
+
+        server.addPage(new Page("/cookies",(ctx) -> {
+            ctx.cookies.setCookie("test", UUID.randomUUID().toString());
+
+            for (Cookie cookie : ctx.cookies.getCookies()) {
+                ctx.response.send(cookie.getName() + " - " + cookie.getValue() + "<br>");
+            }
         }));
     }
 

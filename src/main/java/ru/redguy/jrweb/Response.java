@@ -1,11 +1,14 @@
-package ru.redguy.jrweb.utils;
+package ru.redguy.jrweb;
+
+import ru.redguy.jrweb.utils.HeadersList;
+import ru.redguy.jrweb.utils.StatusCode;
+import ru.redguy.jrweb.utils.StatusCodes;
 
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.OutputStream;
 
 public class Response {
-
     public StatusCode statusCode = StatusCodes.OK;
     private HeadersList headers = new HeadersList();
     public BufferedWriter writer;

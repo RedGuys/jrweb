@@ -76,4 +76,8 @@ public class HeadersList {
         headers.forEach((hv) -> stringBuilder.append(hv.generate()).append("\n"));
         return stringBuilder.toString().trim();
     }
+
+    public boolean has(Header header) {
+        return headers.stream().anyMatch(hv -> Objects.equals(hv.getHeader().getName(), header.getName()));
+    }
 }

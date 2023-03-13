@@ -20,6 +20,7 @@ public class Headers {
     public static class Request {
         public static final Header HOST = new Header("Host");
         public static final Header USER_AGENT = new Header("User-Agent");
+        public static final Header COOKIE = new Header("Cookie");
     }
 
     /**
@@ -32,6 +33,7 @@ public class Headers {
         public static final Header RETRY_AFTER = new Header("Retry-After");
         public static final Header MS_ECHO_REQUEST = new Header("MS-Echo-Request");
         public static final Header CONTENT_LENGTH = new Header("Content-Length");
+        public static final Header SET_COOKIE = new Header("Set-Cookie");
     }
 
     public static @NotNull Header getHeader(String name) {

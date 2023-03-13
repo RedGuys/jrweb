@@ -2,9 +2,6 @@ package ru.redguy.jrweb;
 
 import org.jetbrains.annotations.NotNull;
 import ru.redguy.jrweb.utils.Context;
-import ru.redguy.jrweb.utils.Request;
-import ru.redguy.jrweb.utils.Response;
-import ru.redguy.jrweb.utils.StatusCodes;
 
 import java.io.*;
 import java.net.Socket;
@@ -31,6 +28,7 @@ public class ClientSocketThread implements Runnable {
     public void run() {
         try {
             Context context = new Context(new Request(bufferedReader), new Response(bufferedWriter, socket.getOutputStream()));
+            context.request.parseRequest(context);
             webServer.processRequest(context);
             if(!context.response.isHeadersSent())
                 context.response.flushHeaders();

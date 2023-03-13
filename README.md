@@ -10,6 +10,7 @@ Java webserver implementation without any external dependencies (only jetbrains 
 - Routes
 - Static files serving
 - Reflection routers parsing (define page with using method annotation)
+- Cookies
 
 ## Planned features
 
@@ -24,7 +25,6 @@ Java webserver implementation without any external dependencies (only jetbrains 
 - SSL/TLS
 - Cache control
 - Cache
-- Cookies
 - Sessions
 - Logging
 - Error pages
