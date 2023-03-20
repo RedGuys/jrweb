@@ -6,7 +6,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 
 public class Request {
-    private BufferedReader reader;
+    public BufferedReader reader;
     public Method method = Methods.GET;
     public String url = "/";
     public HeadersList headers = new HeadersList();

@@ -10,7 +10,7 @@ import ru.redguy.jrweb.utils.StatusCode;
 public class UpgradeStatus extends StatusCode {
     public UpgradeStatus(int status, String message, String upgradeTo, String connection) {
         super(status, message);
-        getHeaders().add(Headers.Response.CONNECTION.instance(connection));
-        getHeaders().add(Headers.Response.UPGRADE.instance(upgradeTo));
+        getHeaders().add(Headers.Common.CONNECTION.instance(connection));
+        getHeaders().add(Headers.Common.UPGRADE.instance(upgradeTo));
     }
 }

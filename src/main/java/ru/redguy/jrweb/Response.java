@@ -47,10 +47,11 @@ public class Response {
         try {
             writer.write("HTTP/2 ");
             writer.write(statusCode.generate());
-            writer.newLine();
+            writer.write("\r\n");
             writer.write(headers.generate());
-            writer.newLine();
-            writer.newLine(); //indicating the end of the header section
+            writer.write("\r\n");
+            writer.write("\r\n"); //indicating the end of the header section
+            writer.flush();
             headersSent = true;
         } catch (IOException e) {
             return;

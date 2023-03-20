@@ -3,6 +3,7 @@ import ru.redguy.jrweb.Cookie;
 import ru.redguy.jrweb.WebServer;
 import ru.redguy.jrweb.presets.FileRouter;
 import ru.redguy.jrweb.presets.ResourcesRouter;
+import ru.redguy.jrweb.presets.WebSocket;
 import ru.redguy.jrweb.utils.*;
 
 import java.io.ByteArrayOutputStream;
@@ -65,6 +66,8 @@ public class SimpleWebServer {
                 ctx.response.send(cookie.getName() + " - " + cookie.getValue() + "<br>");
             }
         }));
+
+        server.addPage(new Page("/ws", new WebSocket()));
     }
 
     public static byte @NotNull [] readAllBytes(@NotNull InputStream inputStream) throws IOException {

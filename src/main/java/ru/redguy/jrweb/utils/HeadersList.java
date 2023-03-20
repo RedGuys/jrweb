@@ -63,6 +63,10 @@ public class HeadersList {
         return headers.stream().filter(hv -> Objects.equals(hv.getHeader().getName(), header.getName())).toArray(HeaderValue[]::new);
     }
 
+    public HeaderValue getFirst(Header header) {
+        return headers.stream().filter(hv -> Objects.equals(hv.getHeader().getName(), header.getName())).findFirst().orElse(null);
+    }
+
     public Iterator<HeaderValue> iterator() {
         return headers.iterator();
     }
@@ -73,7 +77,7 @@ public class HeadersList {
 
     public String generate() {
         StringBuilder stringBuilder = new StringBuilder();
-        headers.forEach((hv) -> stringBuilder.append(hv.generate()).append("\n"));
+        headers.forEach((hv) -> stringBuilder.append(hv.generate()).append("\r\n"));
         return stringBuilder.toString().trim();
     }
 

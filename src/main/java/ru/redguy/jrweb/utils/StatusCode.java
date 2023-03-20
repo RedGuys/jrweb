@@ -61,6 +61,6 @@ public class StatusCode {
      * @return String status string with headers.
      */
     public String generate() {
-        return (status + " " + message + "\n" + headers.generate()).trim();
+        return (status + " " + message + "\r\n" + headers.generate()).trim();
     }
 }
