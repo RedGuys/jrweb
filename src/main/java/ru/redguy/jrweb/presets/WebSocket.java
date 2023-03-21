@@ -1,14 +1,13 @@
 package ru.redguy.jrweb.presets;
 
-import ru.redguy.jrweb.utils.Context;
-import ru.redguy.jrweb.utils.ContextRunner;
-import ru.redguy.jrweb.utils.Headers;
-import ru.redguy.jrweb.utils.StatusCodes;
+import ru.redguy.jrweb.utils.*;
 
 import java.io.IOException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Base64;
+import java.util.LinkedList;
+import java.util.List;
 
 public class WebSocket implements ContextRunner {
 
@@ -33,6 +32,8 @@ public class WebSocket implements ContextRunner {
 
     // pesdec
 
+    private DataFrameFactory factory = new DataFrameFactory();
+
     @Override
     public void run(Context context) throws IOException {
         if (context.request.headers.has(Headers.Common.CONNECTION) && context.request.headers.getFirst(Headers.Common.CONNECTION).getValue().equals("Upgrade")) {
@@ -48,10 +49,30 @@ public class WebSocket implements ContextRunner {
                 context.response.getHeaders().add(Headers.Response.SEC_WEBSOCKET_ACCEPT, key);
                 context.response.flushHeaders();
                 context.response.send("\r\n");
+                factory.onNewDataFrame = () -> {
+                    List<DataFrame> frames = factory.pollParsedDataFrame();
+                    if (frames != null) {
+                        List<byte[]> content = new LinkedList<>();
+                        for (DataFrame frame : frames) {
+                            //Parse content with using frame.getMask
+                            if (frame.isFin()) {
+                                content.add(frame.getContent());
+                            }
+                        }
+                        System.out.println(new String(content.toArray(byte[]::new)));
+                    }
+                };
 
                 while (true) {
                     int read = context.request.reader.read();
+                    if (read == -1) continue;
 
+                    //split int to two bytes
+                    byte b1 = (byte) (read & 0xFF);
+                    byte b2 = (byte) ((read >> 8) & 0xFF);
+
+                    factory.addByte(b1);
+                    factory.addByte(b2);
                 }
             }
         }

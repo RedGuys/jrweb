@@ -46,6 +46,7 @@ public class Bits {
     }
 
     public byte[] toByteArray() {
+        if(length == 0) return new byte[0];
         byte[] result = new byte[length / 8];
         for (int i = 0; i < length; i++) {
             if (bits[i]) {

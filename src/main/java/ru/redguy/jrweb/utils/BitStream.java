@@ -1,14 +1,12 @@
 package ru.redguy.jrweb.utils;
 
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Queue;
+import java.util.concurrent.LinkedBlockingQueue;
 
 public class BitStream {
     int byteCarriage = 0;
     byte currentByte = -1;
-    Queue<Byte> bytes = new LinkedList<>();
+    LinkedBlockingQueue<Byte> bytes = new LinkedBlockingQueue<>();
 
     public BitStream() {
     }
@@ -19,7 +17,11 @@ public class BitStream {
 
     public boolean getBit() {
         if(currentByte == -1) {
-            currentByte = bytes.poll();
+            try {
+                currentByte = bytes.take();
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
         }
         boolean result = (currentByte & (1 << byteCarriage)) != 0;
         byteCarriage++;
