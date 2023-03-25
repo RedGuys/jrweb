@@ -11,10 +11,10 @@ Java webserver implementation without any external dependencies (only jetbrains 
 - Static files serving
 - Reflection routers parsing (define page with using method annotation)
 - Cookies
+- Websockets
 
 ## Planned features
 
-- Websockets
 - Servlets
 - JSP
 - JSTL

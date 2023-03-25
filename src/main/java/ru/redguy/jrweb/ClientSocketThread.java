@@ -28,6 +28,7 @@ public class ClientSocketThread implements Runnable {
     public void run() {
         try {
             Context context = new Context(new Request(bufferedReader), new Response(bufferedWriter, socket.getOutputStream()));
+            context.request.stream = socket.getInputStream();
             context.request.parseRequest(context);
             webServer.processRequest(context);
             if(!context.response.isHeadersSent())

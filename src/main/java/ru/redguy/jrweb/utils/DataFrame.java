@@ -1,89 +1,89 @@
 package ru.redguy.jrweb.utils;
 
+import org.jetbrains.annotations.NotNull;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
+
 public class DataFrame {
 
-    final BitStream stream;
-    Bits FIN = new Bits(1);
-    Bits RSV = new Bits(3);
-    Bits OPCODE = new Bits(4);
-    Bits MASK = new Bits(1);
-    Bits PAYLOAD_LENGTH = new Bits(7);
-    Bits PAYLOAD_LENGTH_16 = new Bits(16);
-    Bits PAYLOAD_LENGTH_64 = new Bits(64);
-    Bits MASKING_KEY = new Bits(32);
-    Bits PAYLOAD_DATA = new Bits(0);
-    boolean ready = false;
-
-    public DataFrame(BitStream stream) {
-        this.stream = stream;
+    public enum PacketType {
+        TEXT,
+        BINARY,
+        CLOSE
     }
 
-    public void process() {
-        FIN.setBit(0, stream.getBit());
-        RSV.setBit(0, stream.getBit());
-        RSV.setBit(1, stream.getBit());
-        RSV.setBit(2, stream.getBit());
-        OPCODE.setBit(0, stream.getBit());
-        OPCODE.setBit(1, stream.getBit());
-        OPCODE.setBit(2, stream.getBit());
-        OPCODE.setBit(3, stream.getBit());
-        MASK.setBit(0, stream.getBit());
-        for (int i = 0; i < 7; i++) {
-            PAYLOAD_LENGTH.setBit(i, stream.getBit());
+    private static final int MASK_BIT = 0x80;
+    private static final int PAYLOAD_LENGTH_16_BIT = 0x7E;
+    private static final int PAYLOAD_LENGTH_64_BIT = 0x7F;
+
+    private final byte[] payload;
+    private final PacketType type;
+
+    public DataFrame(@NotNull InputStream input) throws IOException {
+        byte[] header = new byte[2];
+        input.read(header);
+
+        int opcode = header[0] & 0x0F;
+        switch (opcode) {
+            case 0x01:
+                type = PacketType.TEXT;
+                break;
+            case 0x02:
+                type = PacketType.BINARY;
+                break;
+            case 0x08:
+                type = PacketType.CLOSE;
+                break;
+            default:
+                throw new IOException("Unexpected opcode: " + opcode);
         }
-        if (PAYLOAD_LENGTH.toInt() < 126) {
-            PAYLOAD_DATA = new Bits(PAYLOAD_LENGTH.toInt());
-        } else if (PAYLOAD_LENGTH.toInt() == 126) {
-            for (int i = 0; i < 16; i++) {
-                PAYLOAD_LENGTH_16.setBit(i, stream.getBit());
+
+        int payloadLength = header[1] & 0x7F;
+        boolean masked = (header[1] & MASK_BIT) != 0;
+        if (payloadLength == PAYLOAD_LENGTH_16_BIT) {
+            byte[] lengthBytes = new byte[2];
+            input.read(lengthBytes);
+            payloadLength = ByteBuffer.wrap(lengthBytes).getShort() & 0xFFFF;
+        } else if (payloadLength == PAYLOAD_LENGTH_64_BIT) {
+            byte[] lengthBytes = new byte[8];
+            input.read(lengthBytes);
+            payloadLength = (int) ByteBuffer.wrap(lengthBytes).getLong();
+        }
+
+        byte[] mask = null;
+        if (masked) {
+            mask = new byte[4];
+            input.read(mask);
+        }
+
+        byte[] payload = new byte[payloadLength];
+        input.read(payload);
+
+        if (masked) {
+            for (int i = 0; i < payload.length; i++) {
+                payload[i] = (byte) (payload[i] ^ mask[i % 4]);
             }
-            PAYLOAD_DATA = new Bits(PAYLOAD_LENGTH_16.toInt());
-        } else if (PAYLOAD_LENGTH.toInt() == 127) {
-            for (int i = 0; i < 64; i++) {
-                PAYLOAD_LENGTH_64.setBit(i, stream.getBit());
-            }
-            PAYLOAD_DATA = new Bits(PAYLOAD_LENGTH_64.toInt());
         }
-        if (MASK.getBit(0)) {
-            for (int i = 0; i < 32; i++) {
-                MASKING_KEY.setBit(i, stream.getBit());
-            }
-        }
-        for (int i = 0; i < PAYLOAD_DATA.getLength(); i++) {
-            PAYLOAD_DATA.setBit(i, stream.getBit());
-        }
-        ready = true;
+
+        this.payload = payload;
     }
 
-    public boolean isReady() {
-        return ready;
+    public String getPayloadText() {
+        if (type == PacketType.TEXT) {
+            return new String(payload, StandardCharsets.UTF_8);
+        } else return null;
     }
 
-    public boolean isFin() {
-        return FIN.getBit(0);
+    public byte[] getPayloadBytes() {
+        if (type == PacketType.BINARY || type == PacketType.TEXT)
+            return payload;
+        else return null;
     }
 
-    public byte getRSV() {
-        return RSV.toByte();
-    }
-
-    public byte getOPCODE() {
-        return OPCODE.toByte();
-    }
-
-    public boolean hasMask() {
-        return MASK.getBit(0);
-    }
-
-    public long getContentLength() {
-        return PAYLOAD_DATA.getLength();
-    }
-
-    public byte[] getContent() {
-        return PAYLOAD_DATA.toByteArray();
-    }
-
-    public byte[] getMaskingKey() {
-        return MASKING_KEY.toByteArray();
+    public PacketType getType() {
+        return type;
     }
 }

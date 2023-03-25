@@ -1,10 +1,9 @@
 package ru.redguy.jrweb.utils;
 
-import java.util.Queue;
 import java.util.concurrent.LinkedBlockingQueue;
 
 public class BitStream {
-    int byteCarriage = 0;
+    int byteCarriage = 7;
     byte currentByte = -1;
     LinkedBlockingQueue<Byte> bytes = new LinkedBlockingQueue<>();
 
@@ -24,15 +23,15 @@ public class BitStream {
             }
         }
         boolean result = (currentByte & (1 << byteCarriage)) != 0;
-        byteCarriage++;
-        if(byteCarriage == 8) {
-            byteCarriage = 0;
+        byteCarriage--;
+        if(byteCarriage == -1) {
+            byteCarriage = 7;
             currentByte = -1;
         }
         return result;
     }
 
     public boolean hasBits() {
-        return !bytes.isEmpty() || byteCarriage != 0;
+        return !bytes.isEmpty() || byteCarriage != 7;
     }
 }

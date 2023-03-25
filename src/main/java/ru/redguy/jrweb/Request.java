@@ -4,9 +4,11 @@ import ru.redguy.jrweb.utils.*;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
 
 public class Request {
     public BufferedReader reader;
+    public InputStream stream;
     public Method method = Methods.GET;
     public String url = "/";
     public HeadersList headers = new HeadersList();

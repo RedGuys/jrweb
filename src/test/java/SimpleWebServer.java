@@ -67,7 +67,16 @@ public class SimpleWebServer {
             }
         }));
 
-        server.addPage(new Page("/ws", new WebSocket()));
+        server.addPage(new Page("/ws", new WebSocket() {
+            @Override
+            public void onMessage(Context ctx, DataFrame frame) {
+                try {
+                    send(ctx, frame.getPayloadText());
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        }));
     }
 
     public static byte @NotNull [] readAllBytes(@NotNull InputStream inputStream) throws IOException {
