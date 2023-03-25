@@ -131,6 +131,21 @@ server.addPage(new Page("/headers",(ctx) -> {
 }));
 ```
 
+### WebSocket echo server
+
+```java
+server.addPage(new Page("/ws", new WebSocket() {
+    @Override
+    public void onMessage(Context ctx, DataFrame frame) {
+       try {
+          send(ctx, frame.getPayloadText());
+       } catch (IOException e) {
+          throw new RuntimeException(e);
+       }
+    }
+}));
+```
+
 ## License
 MIT
 
