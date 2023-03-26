@@ -15,7 +15,6 @@ Java webserver implementation without any external dependencies (only jetbrains 
 
 ## Planned features
 
-- Servlets
 - JSP
 - JSTL
 - Chunked transfer encoding
