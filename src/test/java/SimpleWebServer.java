@@ -1,6 +1,7 @@
 import org.jetbrains.annotations.NotNull;
 import ru.redguy.jrweb.Cookie;
 import ru.redguy.jrweb.WebServer;
+import ru.redguy.jrweb.WebServerOptions;
 import ru.redguy.jrweb.presets.FileRouter;
 import ru.redguy.jrweb.presets.ResourcesRouter;
 import ru.redguy.jrweb.presets.WebSocket;
@@ -14,7 +15,7 @@ import java.util.UUID;
 
 public class SimpleWebServer {
     public static void main(String[] args) throws IOException {
-        WebServer server = new WebServer();
+        WebServer server = new WebServer(new WebServerOptions().enableChunkedTransfer());
         server.start(80);
 
         server.addPage(new Page("/",(ctx) -> {

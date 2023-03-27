@@ -1,5 +1,6 @@
 package ru.redguy.jrweb;
 
+import ru.redguy.jrweb.utils.Headers;
 import ru.redguy.jrweb.utils.HeadersList;
 import ru.redguy.jrweb.utils.StatusCode;
 import ru.redguy.jrweb.utils.StatusCodes;
@@ -14,8 +15,10 @@ public class Response {
     public BufferedWriter writer;
     public OutputStream outputStream;
     private boolean headersSent = false;
+    private WebServer webServer;
 
-    public Response(BufferedWriter writer, OutputStream outputStream) {
+    public Response(WebServer webServer, BufferedWriter writer, OutputStream outputStream) {
+        this.webServer = webServer;
         this.writer = writer;
         this.outputStream = outputStream;
     }
@@ -23,7 +26,14 @@ public class Response {
     public boolean send(String str) {
         if (!headersSent) flushHeaders();
         try {
+            if(webServer.getOptions().isEnableChunkedTransfer()) {
+                writer.write(Integer.toHexString(str.length()));
+                writer.write("\r\n");
+            }
             writer.write(str);
+            if (webServer.getOptions().isEnableChunkedTransfer()) {
+                writer.write("\r\n");
+            }
             return true;
         } catch (IOException e) {
             return false;
@@ -42,8 +52,22 @@ public class Response {
         }
     }
 
+    protected void finish() {
+        try {
+            if(webServer.getOptions().isEnableChunkedTransfer()) {
+                writer.write("0\r\n\r\n");
+            }
+            writer.flush();
+        } catch (IOException e) {
+            return;
+        }
+    }
+
     public void flushHeaders() {
         if (headersSent) return;
+        if(webServer.getOptions().isEnableChunkedTransfer()) {
+            headers.add(Headers.Response.TRANSFER_ENCODING, "chunked");
+        }
         try {
             writer.write("HTTP/2 ");
             writer.write(statusCode.generate());

@@ -77,6 +77,8 @@ public class WebServer {
         if (!context.processed) {
             context.response.setStatusCode(StatusCodes.NOT_FOUND);
             context.response.send("Not found");
+        } else {
+            context.response.finish();
         }
     }
 

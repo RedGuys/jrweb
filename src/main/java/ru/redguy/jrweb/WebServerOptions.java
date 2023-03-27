@@ -6,9 +6,14 @@ package ru.redguy.jrweb;
  */
 public class WebServerOptions {
     private int socketBacklog = 50;
+    private boolean enableChunkedTransfer = false;
 
     public int getSocketBacklog() {
         return socketBacklog;
+    }
+
+    public boolean isEnableChunkedTransfer() {
+        return enableChunkedTransfer;
     }
 
     /**
@@ -18,6 +23,15 @@ public class WebServerOptions {
      */
     public WebServerOptions socketBacklog(int socketBacklog) {
         this.socketBacklog = socketBacklog;
+        return this;
+    }
+
+    /**
+     * Enables chunked transfer.
+     * @return self.
+     */
+    public WebServerOptions enableChunkedTransfer() {
+        this.enableChunkedTransfer = true;
         return this;
     }
 }
