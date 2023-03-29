@@ -43,9 +43,17 @@ public class Response {
     public boolean send(byte[] bytes) {
         if (!headersSent) flushHeaders();
         try {
+            if(webServer.getOptions().isEnableChunkedTransfer()) {
+                writer.write(Integer.toHexString(bytes.length));
+                writer.write("\r\n");
+            }
             writer.flush();
             outputStream.write(bytes);
             outputStream.flush();
+            if (webServer.getOptions().isEnableChunkedTransfer()) {
+                writer.write("\r\n");
+                writer.flush();
+            }
             return true;
         } catch (IOException e) {
             return false;
