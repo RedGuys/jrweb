@@ -1,5 +1,8 @@
 package ru.redguy.jrweb;
 
+import ru.redguy.jrweb.utils.Compressor;
+import ru.redguy.jrweb.utils.Gzip;
+
 /**
  * Web server options.
  * @author RedGuy
@@ -7,6 +10,7 @@ package ru.redguy.jrweb;
 public class WebServerOptions {
     private int socketBacklog = 50;
     private boolean enableChunkedTransfer = false;
+    private Compressor compressor = null;
 
     public int getSocketBacklog() {
         return socketBacklog;
@@ -14,6 +18,10 @@ public class WebServerOptions {
 
     public boolean isEnableChunkedTransfer() {
         return enableChunkedTransfer;
+    }
+
+    public Compressor getCompressor() {
+        return compressor;
     }
 
     /**
@@ -32,6 +40,15 @@ public class WebServerOptions {
      */
     public WebServerOptions enableChunkedTransfer() {
         this.enableChunkedTransfer = true;
+        return this;
+    }
+
+    /**
+     * Enables gzip compression.
+     * @return self.
+     */
+    public WebServerOptions enableGzipCompression() {
+        this.compressor = new Gzip();
         return this;
     }
 }

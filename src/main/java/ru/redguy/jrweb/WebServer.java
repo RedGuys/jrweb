@@ -49,8 +49,15 @@ public class WebServer {
         if (started) return false;
         socket = new ServerSocketThread(this, new ServerSocket(port, options.getSocketBacklog()));
         socket.start();
+        checkOptions();
         started = true;
         return true;
+    }
+
+    private void checkOptions() {
+        if(getOptions().getCompressor()!=null && getOptions().isEnableChunkedTransfer()) {
+            System.out.println("WARNING: Chunked transfer and compression enabled. This may cause problems.");
+        }
     }
 
     /**

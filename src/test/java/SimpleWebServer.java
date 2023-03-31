@@ -15,7 +15,7 @@ import java.util.UUID;
 
 public class SimpleWebServer {
     public static void main(String[] args) throws IOException {
-        WebServer server = new WebServer(new WebServerOptions().enableChunkedTransfer());
+        WebServer server = new WebServer(new WebServerOptions()/*.enableChunkedTransfer()*/.enableGzipCompression());
         server.start(80);
 
         server.addPage(new Page("/",(ctx) -> {
