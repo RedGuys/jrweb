@@ -1,17 +1,86 @@
+import org.gradle.nativeplatform.platform.internal.Architectures
+import org.gradle.nativeplatform.platform.internal.DefaultNativePlatform
+
 plugins {
     id 'java'
+    id 'maven-publish'
 }
 
 group 'ru.redguy'
-version '1.1'
+version '1.2'
+
+def brotliVersion = "1.11.0"
+def operatingSystem = DefaultNativePlatform.getCurrentOperatingSystem()
 
 repositories {
     mavenCentral()
 }
 
+java {
+    registerFeature('brotliSupport') {
+        usingSourceSet(sourceSets.main)
+    }
+}
+
 dependencies {
     implementation 'org.jetbrains:annotations:20.1.0'
+    brotliSupportImplementation "com.aayushatharva.brotli4j:brotli4j:$brotliVersion"
+    brotliSupportRuntimeOnly("""com.aayushatharva.brotli4j:native-${
+        if (operatingSystem.isWindows()) "windows-x86_64"
+        else if (operatingSystem.isMacOsX())
+            if (DefaultNativePlatform.getCurrentArchitecture().isArm()) "osx-aarch64"
+            else "osx-x86_64"
+        else if (operatingSystem.isLinux())
+            if (Architectures.ARM_V7.isAlias(DefaultNativePlatform.getCurrentArchitecture().getName())) "linux-armv7"
+            else if (Architectures.AARCH64.isAlias(DefaultNativePlatform.getCurrentArchitecture().getName())) "linux-aarch64"
+            else if (Architectures.X86_64.isAlias(DefaultNativePlatform.getCurrentArchitecture().getName())) "linux-x86_64"
+            else
+                throw new IllegalStateException("Unsupported architecture: ${DefaultNativePlatform.getCurrentArchitecture().getName()}");
+        else
+            throw new IllegalStateException("Unsupported operating system: $operatingSystem");
+    }:$brotliVersion""")
 }
 
 test {
+}
+
+publishing {
+    repositories {
+        maven {
+            url = "https://repo.redguy.ru/repository/maven/"
+            credentials {
+                username = System.getenv("MVN_USER")
+                password = System.getenv("MVN_PASSWORD")
+            }
+        }
+    }
+
+    publications {
+        maven(MavenPublication) {
+            from components.java
+            pom {
+                name = 'JRWeb'
+                description = 'Lightweight Java web server'
+                url = 'https://github.com/RedGuys/jrweb'
+                licenses {
+                    license {
+                        name = 'MIT License'
+                        url = 'https://opensource.org/licenses/MIT'
+                    }
+                }
+                developers {
+                    developer {
+                        id = 'RedGuy'
+                        name = 'Ilya Petrov'
+                        email = 'me@redguy.ru'
+                    }
+                }
+                scm {
+                    connection = 'scm:git:https://github.com/RedGuys/jrweb.git'
+                    developerConnection = 'scm:git:https://github.com/RedGuys/jrweb.git'
+                    url = 'https://github.com/RedGuys/jrweb'
+                }
+            }
+        }
+    }
 }

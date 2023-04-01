@@ -1,6 +1,6 @@
 # JRWeb
 
-Java webserver implementation without any external dependencies (only jetbrains annotations).
+Java webserver implementation mostly without any external dependencies (only jetbrains annotations).
 
 ## Features
 
@@ -12,10 +12,10 @@ Java webserver implementation without any external dependencies (only jetbrains 
 - Reflection routers parsing (define page with using method annotation)
 - Cookies
 - Websockets
+- Chunked transfer encoding
 
 ## Planned features
 
-- Chunked transfer encoding
 - Keep-alive
 - GZIP compression
 - Basic authentication
@@ -29,6 +29,36 @@ Java webserver implementation without any external dependencies (only jetbrains 
 - Custom error codes
 - Custom error messages
 - Custom error handlers
+
+## Installation
+```groovy
+repositories {
+    mavenCentral()
+    maven {
+        url = "https://repo.redguy.ru/repository/maven-public/"
+    }
+}
+
+dependencies {
+    implementation("ru.redguy:jrweb:$version") {
+        capabilities {
+            requireCapability("ru.redguy:jrweb-brotli-support:$version")
+        }
+    }
+}
+```
+
+## Implementation notes
+
+### Brotli compression
+To enable brotli compression you need to enable feature brotliSupport.
+```groovy
+implementation("ru.redguy:jrweb:$version") {
+    capabilities {
+        requireCapability("ru.redguy:jrweb-brotli-support:$version")
+    }
+}
+```
 
 ## Usage
 

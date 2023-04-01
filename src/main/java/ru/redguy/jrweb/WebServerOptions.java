@@ -1,5 +1,6 @@
 package ru.redguy.jrweb;
 
+import ru.redguy.jrweb.utils.Brotli;
 import ru.redguy.jrweb.utils.Compressor;
 import ru.redguy.jrweb.utils.Deflate;
 import ru.redguy.jrweb.utils.Gzip;
@@ -59,6 +60,15 @@ public class WebServerOptions {
      */
     public WebServerOptions enableDeflateCompression() {
         this.compressor = new Deflate();
+        return this;
+    }
+
+    /**
+     * Enables brotli compression.
+     * @return self.
+     */
+    public WebServerOptions enableBrotliCompression() {
+        this.compressor = new Brotli();
         return this;
     }
 }

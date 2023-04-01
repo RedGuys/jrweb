@@ -58,6 +58,9 @@ public class WebServer {
         if(getOptions().getCompressor()!=null && getOptions().isEnableChunkedTransfer()) {
             System.out.println("WARNING: Chunked transfer and compression enabled. This may cause problems.");
         }
+        if(getOptions().getCompressor() instanceof Brotli && !BrotliUtil.isSupported()) {
+            System.out.println("WARNING: Brotli compression enabled, but brotli library not found. Data will not be sent to clients.");
+        }
     }
 
     /**
