@@ -1,6 +1,7 @@
 package ru.redguy.jrweb;
 
 import ru.redguy.jrweb.utils.Compressor;
+import ru.redguy.jrweb.utils.Deflate;
 import ru.redguy.jrweb.utils.Gzip;
 
 /**
@@ -49,6 +50,15 @@ public class WebServerOptions {
      */
     public WebServerOptions enableGzipCompression() {
         this.compressor = new Gzip();
+        return this;
+    }
+
+    /**
+     * Enables deflate compression.
+     * @return self.
+     */
+    public WebServerOptions enableDeflateCompression() {
+        this.compressor = new Deflate();
         return this;
     }
 }
