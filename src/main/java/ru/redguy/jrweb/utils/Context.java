@@ -14,6 +14,6 @@ public class Context {
         this.response = response;
     }
 
-    boolean cancelled = false;
+    public boolean cancelled = false;
     public boolean processed = false;
 }

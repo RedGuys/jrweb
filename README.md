@@ -14,10 +14,10 @@ Java webserver implementation mostly without any external dependencies (only jet
 - Websockets
 - Chunked transfer encoding
 - GZIP compression
+- Basic authentication
 
 ## Planned features
 
-- Basic authentication
 - SSL/TLS
 - Cache control
 - Cache

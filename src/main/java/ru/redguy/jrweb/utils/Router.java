@@ -46,6 +46,8 @@ public class Router {
                             break;
                     }
                 }
+            } else {
+                context.processed = true;
             }
 
             for (Middleware middleware : middlewares) {

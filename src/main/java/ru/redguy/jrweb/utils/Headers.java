@@ -22,6 +22,7 @@ public class Headers {
         public static final Header USER_AGENT = new Header("User-Agent");
         public static final Header COOKIE = new Header("Cookie");
         public static final Header SEC_WEBSOCKET_KEY = new Header("Sec-WebSocket-Key");
+        public static final Header AUTHORIZATION = new Header("Authorization");
     }
 
     /**

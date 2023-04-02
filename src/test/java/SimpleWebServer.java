@@ -2,6 +2,7 @@ import org.jetbrains.annotations.NotNull;
 import ru.redguy.jrweb.Cookie;
 import ru.redguy.jrweb.WebServer;
 import ru.redguy.jrweb.WebServerOptions;
+import ru.redguy.jrweb.presets.BasicAuthorizationMiddleware;
 import ru.redguy.jrweb.presets.FileRouter;
 import ru.redguy.jrweb.presets.ResourcesRouter;
 import ru.redguy.jrweb.presets.WebSocket;
@@ -15,25 +16,25 @@ import java.util.UUID;
 
 public class SimpleWebServer {
     public static void main(String[] args) throws IOException {
-        WebServer server = new WebServer(new WebServerOptions()/*.enableChunkedTransfer()*/.enableBrotliCompression());
+        WebServer server = new WebServer(new WebServerOptions()/*.enableChunkedTransfer()*/.enableGzipCompression());
         server.start(80);
 
-        server.addPage(new Page("/",(ctx) -> {
+        server.addPage(new Page("/", (ctx) -> {
             ctx.response.setStatusCode(StatusCodes.OK);
             ctx.response.send("<html><body>Hello World!<br><a href=\"/redirect\">Redirect</a></body></html>");
         }));
 
-        server.addPage(new Page("/redirect",(ctx) -> {
+        server.addPage(new Page("/redirect", (ctx) -> {
             ctx.response.setStatusCode(StatusCodes.MOVED_PERMANENTLY("https://google.com"));
         }));
 
-        server.addPage(new Page(Methods.POST,"/post-only",(ctx) -> {
+        server.addPage(new Page(Methods.POST, "/post-only", (ctx) -> {
             ctx.response.setStatusCode(StatusCodes.OK);
             ctx.response.send("<html><body>POST ONLY</body></html>");
         }));
 
         Router router = server.addRouter(new Router("/route"));
-        router.add(new Page("/test",(ctx) -> {
+        router.add(new Page("/test", (ctx) -> {
             ctx.response.setStatusCode(StatusCodes.OK);
             ctx.response.send("<html><body>Route test</body></html>");
         }));
@@ -52,7 +53,7 @@ public class SimpleWebServer {
 
         server.addRouter(new ResourcesRouter("/resources", "/"));
 
-        server.addPage(new Page("/headers",(ctx) -> {
+        server.addPage(new Page("/headers", (ctx) -> {
             ctx.response.send("<html><body>Headers:<br>");
             ctx.request.headers.forEach((e) -> {
                 ctx.response.send(e.generate() + ": " + e.getValue() + "<br>");
@@ -60,7 +61,7 @@ public class SimpleWebServer {
             ctx.response.send("</body></html>");
         }));
 
-        server.addPage(new Page("/cookies",(ctx) -> {
+        server.addPage(new Page("/cookies", (ctx) -> {
             ctx.cookies.setCookie("test", UUID.randomUUID().toString());
 
             for (Cookie cookie : ctx.cookies.getCookies()) {
@@ -78,6 +79,10 @@ public class SimpleWebServer {
                 }
             }
         }));
+
+        server.addMiddleware(new BasicAuthorizationMiddleware((username, password) -> username.equals("admin") && password.equals("admin"))
+                .setRegex("/password"));
+        server.addPage(new Page("/password", (ctx) -> ctx.response.send("<html><body>Authorized</body></html>")));
     }
 
     public static byte @NotNull [] readAllBytes(@NotNull InputStream inputStream) throws IOException {
