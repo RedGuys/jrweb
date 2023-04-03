@@ -19,33 +19,48 @@ public class SimpleWebServer {
         WebServer server = new WebServer(new WebServerOptions()/*.enableChunkedTransfer()*/.enableGzipCompression());
         server.start(80);
 
-        server.addPage(new Page("/", (ctx) -> {
-            ctx.response.setStatusCode(StatusCodes.OK);
-            ctx.response.send("<html><body>Hello World!<br><a href=\"/redirect\">Redirect</a></body></html>");
-        }));
+        server.addPage(new Page("/") {
+            @Override
+            public void run(Context context) throws IOException {
+                context.response.setStatusCode(StatusCodes.OK);
+                context.response.send("<html><body>Hello World!<br><a href=\"/redirect\">Redirect</a></body></html>");
+            }
+        });
 
-        server.addPage(new Page("/redirect", (ctx) -> {
-            ctx.response.setStatusCode(StatusCodes.MOVED_PERMANENTLY("https://google.com"));
-        }));
+        server.addPage(new Page("/redirect") {
+            @Override
+            public void run(Context context) throws IOException {
+                context.response.setStatusCode(StatusCodes.MOVED_PERMANENTLY("https://google.com"));
+            }
+        });
 
-        server.addPage(new Page(Methods.POST, "/post-only", (ctx) -> {
-            ctx.response.setStatusCode(StatusCodes.OK);
-            ctx.response.send("<html><body>POST ONLY</body></html>");
-        }));
+        server.addPage(new Page(Methods.POST, "/post-only") {
+            @Override
+            public void run(Context context) throws IOException {
+                context.response.setStatusCode(StatusCodes.OK);
+                context.response.send("<html><body>POST ONLY</body></html>");
+            }
+        });
 
         Router router = server.addRouter(new Router("/route"));
-        router.add(new Page("/test", (ctx) -> {
-            ctx.response.setStatusCode(StatusCodes.OK);
-            ctx.response.send("<html><body>Route test</body></html>");
-        }));
+        router.add(new Page("/test") {
+            @Override
+            public void run(Context context) throws IOException {
+                context.response.setStatusCode(StatusCodes.OK);
+                context.response.send("<html><body>Route test</body></html>");
+            }
+        });
 
-        server.addPage(new Page(Methods.GET, "/file", (ctx) -> {
-            ctx.response.setStatusCode(StatusCodes.OK);
-            InputStream is = SimpleWebServer.class.getResourceAsStream("rick.webp");
-            byte[] bytes = readAllBytes(is);
-            ctx.response.getHeaders().add(Headers.Response.CONTENT_LENGTH, String.valueOf(bytes.length));
-            ctx.response.send(bytes);
-        }));
+        server.addPage(new Page(Methods.GET,"/file") {
+            @Override
+            public void run(Context context) throws IOException {
+                context.response.setStatusCode(StatusCodes.OK);
+                InputStream is = SimpleWebServer.class.getResourceAsStream("rick.webp");
+                byte[] bytes = readAllBytes(is);
+                context.response.getHeaders().add(Headers.Response.CONTENT_LENGTH, String.valueOf(bytes.length));
+                context.response.send(bytes);
+            }
+        });
 
         server.addRouter(new FileRouter("/src", Paths.get("src")));
 
@@ -53,23 +68,29 @@ public class SimpleWebServer {
 
         server.addRouter(new ResourcesRouter("/resources", "/"));
 
-        server.addPage(new Page("/headers", (ctx) -> {
-            ctx.response.send("<html><body>Headers:<br>");
-            ctx.request.headers.forEach((e) -> {
-                ctx.response.send(e.generate() + ": " + e.getValue() + "<br>");
-            });
-            ctx.response.send("</body></html>");
-        }));
-
-        server.addPage(new Page("/cookies", (ctx) -> {
-            ctx.cookies.setCookie("test", UUID.randomUUID().toString());
-
-            for (Cookie cookie : ctx.cookies.getCookies()) {
-                ctx.response.send(cookie.getName() + " - " + cookie.getValue() + "<br>");
+        server.addPage(new Page("/headers") {
+            @Override
+            public void run(Context context) throws IOException {
+                context.response.send("<html><body>Headers:<br>");
+                context.request.headers.forEach((e) -> {
+                    context.response.send(e.generate() + ": " + e.getValue() + "<br>");
+                });
+                context.response.send("</body></html>");
             }
-        }));
+        });
 
-        server.addPage(new Page("/ws", new WebSocket() {
+        server.addPage(new Page("/cookies") {
+            @Override
+            public void run(Context context) throws IOException {
+                context.cookies.setCookie("test", UUID.randomUUID().toString());
+
+                for (Cookie cookie : context.cookies.getCookies()) {
+                    context.response.send(cookie.getName() + " - " + cookie.getValue() + "<br>");
+                }
+            }
+        });
+
+        server.addPage(new WebSocket("/ws") {
             @Override
             public void onMessage(Context ctx, DataFrame frame) {
                 try {
@@ -78,11 +99,16 @@ public class SimpleWebServer {
                     throw new RuntimeException(e);
                 }
             }
-        }));
+        });
 
         server.addMiddleware(new BasicAuthorizationMiddleware((username, password) -> username.equals("admin") && password.equals("admin"))
                 .setRegex("/password"));
-        server.addPage(new Page("/password", (ctx) -> ctx.response.send("<html><body>Authorized</body></html>")));
+        server.addPage(new Page("/password") {
+            @Override
+            public void run(Context context) throws IOException {
+                context.response.send("<html><body>Authorized</body></html>");
+            }
+        });
     }
 
     public static byte @NotNull [] readAllBytes(@NotNull InputStream inputStream) throws IOException {

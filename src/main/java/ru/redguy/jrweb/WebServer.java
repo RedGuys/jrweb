@@ -55,10 +55,10 @@ public class WebServer {
     }
 
     private void checkOptions() {
-        if(getOptions().getCompressor()!=null && getOptions().isEnableChunkedTransfer()) {
+        if (getOptions().getCompressor() != null && getOptions().isEnableChunkedTransfer()) {
             System.out.println("WARNING: Chunked transfer and compression enabled. This may cause problems.");
         }
-        if(getOptions().getCompressor() instanceof Brotli && !BrotliUtil.isSupported()) {
+        if (getOptions().getCompressor() instanceof Brotli && !BrotliUtil.isSupported()) {
             System.out.println("WARNING: Brotli compression enabled, but brotli library not found. Data will not be sent to clients.");
         }
     }
@@ -82,7 +82,7 @@ public class WebServer {
     }
 
     protected void processRequest(Context context) {
-        rootRouter.processRequest("",context);
+        rootRouter.processRequest("", context);
 
         if (!context.processed) {
             context.response.setStatusCode(StatusCodes.NOT_FOUND);
@@ -93,18 +93,6 @@ public class WebServer {
     }
 
     public Middleware addMiddleware(Middleware middleware) {
-        rootRouter.add(middleware);
-        return middleware;
-    }
-
-    public Middleware addMiddleware(ContextRunner runner) {
-        Middleware middleware = new Middleware(runner);
-        rootRouter.add(middleware);
-        return middleware;
-    }
-
-    public Middleware addMiddleware(Method method, ContextRunner runner) {
-        Middleware middleware = new Middleware(method, runner);
         rootRouter.add(middleware);
         return middleware;
     }
@@ -126,30 +114,36 @@ public class WebServer {
         rootRouter.add(router);
 
         for (java.lang.reflect.Method method : object.getClass().getDeclaredMethods()) {
-            if(method.getParameterCount() != 1) continue;
-            if(method.getParameterTypes()[0].isAssignableFrom(Context.class)) {
-                if(method.isAnnotationPresent(ru.redguy.jrweb.annotations.Middleware.class)) {
+            if (method.getParameterCount() != 1) continue;
+            if (method.getParameterTypes()[0].isAssignableFrom(Context.class)) {
+                if (method.isAnnotationPresent(ru.redguy.jrweb.annotations.Middleware.class)) {
                     ru.redguy.jrweb.annotations.Middleware middlewareAnnotation = method.getAnnotation(ru.redguy.jrweb.annotations.Middleware.class);
                     if (middlewareAnnotation == null) continue;
-                    Middleware middleware = new Middleware(Methods.getMethod(middlewareAnnotation.method()), context -> {
-                        try {
-                            method.invoke(object, context);
-                        } catch (IllegalAccessException | InvocationTargetException e) {
-                            e.printStackTrace();
+                    Middleware middleware = new Middleware(Methods.getMethod(middlewareAnnotation.method())) {
+                        @Override
+                        public void run(Context context) throws IOException {
+                            try {
+                                method.invoke(object, context);
+                            } catch (IllegalAccessException | InvocationTargetException e) {
+                                e.printStackTrace();
+                            }
                         }
-                    });
+                    };
                     router.add(middleware);
                 }
-                if(method.isAnnotationPresent(ru.redguy.jrweb.annotations.Page.class)) {
+                if (method.isAnnotationPresent(ru.redguy.jrweb.annotations.Page.class)) {
                     ru.redguy.jrweb.annotations.Page pageAnnotation = method.getAnnotation(ru.redguy.jrweb.annotations.Page.class);
                     if (pageAnnotation == null) continue;
-                    Page page = new Page(Methods.getMethod(pageAnnotation.method()), pageAnnotation.value(), context -> {
-                        try {
-                            method.invoke(object, context);
-                        } catch (IllegalAccessException | InvocationTargetException e) {
-                            e.printStackTrace();
+                    Page page = new Page(Methods.getMethod(pageAnnotation.method()), pageAnnotation.value()) {
+                        @Override
+                        public void run(Context context) throws IOException {
+                            try {
+                                method.invoke(object, context);
+                            } catch (IllegalAccessException | InvocationTargetException e) {
+                                e.printStackTrace();
+                            }
                         }
-                    });
+                    };
                     router.add(page);
                 }
             }
