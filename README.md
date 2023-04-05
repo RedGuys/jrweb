@@ -18,7 +18,6 @@ Java webserver implementation mostly without any external dependencies (only jet
 
 ## Planned features
 
-- SSL/TLS
 - Cache control
 - Cache
 - Sessions
