@@ -17,7 +17,7 @@ public class Request {
         this.reader = reader;
     }
 
-    protected void parseRequest(Context context) throws IOException {
+    protected void parseRequest(Context context, WebServer webServer) throws IOException {
         String line = reader.readLine();
         method = Methods.getMethod(line.split(" ")[0]);
         url = line.split(" ")[1];
@@ -33,5 +33,8 @@ public class Request {
                 context.cookies.internalAddCookie(new Cookie(s));
             }
         }
+
+        if (webServer.getOptions().isEnableSessionStorage())
+            context.session = webServer.getSessionStorage().get(context);
     }
 }

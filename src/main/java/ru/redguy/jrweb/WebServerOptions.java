@@ -13,6 +13,8 @@ public class WebServerOptions {
     private int socketBacklog = 50;
     private boolean enableChunkedTransfer = false;
     private Compressor compressor = null;
+    private boolean enableSessionStorage = false;
+    private long sessionTTL = -1;
 
     public int getSocketBacklog() {
         return socketBacklog;
@@ -24,6 +26,10 @@ public class WebServerOptions {
 
     public Compressor getCompressor() {
         return compressor;
+    }
+
+    public boolean isEnableSessionStorage() {
+        return enableSessionStorage;
     }
 
     /**
@@ -69,6 +75,26 @@ public class WebServerOptions {
      */
     public WebServerOptions enableBrotliCompression() {
         this.compressor = new Brotli();
+        return this;
+    }
+
+    /**
+     * Enables session storage.
+     * @return self.
+     */
+    public WebServerOptions enableSessionStorage() {
+        this.enableSessionStorage = true;
+        return this;
+    }
+
+    /**
+     * Enables session storage.
+     * @param sessionTTL session time to live in seconds.
+     * @return self.
+     */
+    public WebServerOptions enableSessionStorage(long sessionTTL) {
+        this.enableSessionStorage = true;
+        this.sessionTTL = sessionTTL;
         return this;
     }
 }

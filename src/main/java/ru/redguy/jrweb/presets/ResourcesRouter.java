@@ -1,20 +1,15 @@
 package ru.redguy.jrweb.presets;
 
 import org.jetbrains.annotations.NotNull;
-import ru.redguy.jrweb.utils.Context;
+import ru.redguy.jrweb.Context;
 import ru.redguy.jrweb.utils.Headers;
 import ru.redguy.jrweb.utils.Router;
 import ru.redguy.jrweb.utils.StatusCodes;
 
 import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.Arrays;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 public class ResourcesRouter extends Router {
 

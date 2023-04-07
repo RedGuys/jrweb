@@ -1,4 +1,5 @@
 import org.jetbrains.annotations.NotNull;
+import ru.redguy.jrweb.Context;
 import ru.redguy.jrweb.Cookie;
 import ru.redguy.jrweb.WebServer;
 import ru.redguy.jrweb.WebServerOptions;
@@ -16,7 +17,7 @@ import java.util.UUID;
 
 public class SimpleWebServer {
     public static void main(String[] args) throws IOException {
-        WebServer server = new WebServer(new WebServerOptions()/*.enableChunkedTransfer()*/.enableGzipCompression());
+        WebServer server = new WebServer(new WebServerOptions().enableSessionStorage()/*.enableChunkedTransfer()*//*.enableGzipCompression()*/);
         server.start(80);
 
         server.addPage(new Page("/") {
@@ -109,6 +110,21 @@ public class SimpleWebServer {
                 context.response.send("<html><body>Authorized</body></html>");
             }
         });
+
+        server.addPage(new Page("/count") {
+            @Override
+            public void run(Context context) throws IOException {
+                context.response.send(String.valueOf(context.session.get(Counter.class).increment()));
+            }
+        });
+    }
+
+    public static class Counter extends SessionData {
+        private int count = 0;
+
+        public int increment() {
+            return ++count;
+        }
     }
 
     public static byte @NotNull [] readAllBytes(@NotNull InputStream inputStream) throws IOException {

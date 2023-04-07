@@ -2,12 +2,12 @@ package ru.redguy.jrweb.presets;
 
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
+import ru.redguy.jrweb.Context;
 import ru.redguy.jrweb.utils.*;
 
 import java.io.IOException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.Arrays;
 import java.util.Base64;
 
 public abstract class WebSocket extends Page {

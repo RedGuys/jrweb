@@ -1,7 +1,6 @@
 package ru.redguy.jrweb;
 
 import org.jetbrains.annotations.NotNull;
-import ru.redguy.jrweb.utils.Context;
 import ru.redguy.jrweb.utils.Headers;
 
 import java.util.ArrayList;
@@ -76,6 +75,15 @@ public class Cookies {
                 return;
             }
         }
+    }
+
+    public boolean hasCookie(String name) {
+        for (Cookie cookie : cookies) {
+            if (cookie.getName().equals(name)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public String toString() {

@@ -17,6 +17,7 @@ public class WebServer {
     private final WebServerOptions options;
     private boolean started = false;
     private Router rootRouter;
+    private SessionStorage sessionStorage;
 
 
     public WebServer() {
@@ -26,6 +27,9 @@ public class WebServer {
     public WebServer(WebServerOptions options) {
         this.options = options;
         this.rootRouter = new Router();
+        if (this.options.isEnableSessionStorage()) {
+            this.sessionStorage = new SessionStorage();
+        }
     }
 
     public WebServerOptions getOptions() {
@@ -81,7 +85,8 @@ public class WebServer {
         return true;
     }
 
-    protected void processRequest(Context context) {
+    protected void processRequest(@NotNull Context context) {
+        context.response.getHeaders().add(Headers.Response.SERVER, "JRWeb");
         rootRouter.processRequest("", context);
 
         if (!context.processed) {
@@ -150,5 +155,9 @@ public class WebServer {
         }
 
         return router;
+    }
+
+    protected SessionStorage getSessionStorage() {
+        return sessionStorage;
     }
 }

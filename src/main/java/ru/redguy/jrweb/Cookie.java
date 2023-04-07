@@ -12,7 +12,7 @@ public class Cookie {
     @Contract(pure = true)
     public Cookie(@NotNull String cookie) {
         String[] split = cookie.split("=");
-        name = split[0];
+        name = split[0].trim();
         value = split[1];
     }
 

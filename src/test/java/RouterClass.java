@@ -1,7 +1,7 @@
 import org.jetbrains.annotations.NotNull;
 import ru.redguy.jrweb.annotations.Page;
 import ru.redguy.jrweb.annotations.Router;
-import ru.redguy.jrweb.utils.Context;
+import ru.redguy.jrweb.Context;
 
 @Router("/class")
 public class RouterClass {

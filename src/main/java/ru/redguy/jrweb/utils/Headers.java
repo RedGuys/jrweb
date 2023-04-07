@@ -37,6 +37,7 @@ public class Headers {
         public static final Header SEC_WEBSOCKET_ACCEPT = new Header("Sec-WebSocket-Accept");
         public static final Header TRANSFER_ENCODING = new Header("Transfer-Encoding");
         public static final Header CONTENT_ENCODING = new Header("Content-Encoding");
+        public static final Header SERVER = new Header("Server");
     }
 
     public static class Common {
