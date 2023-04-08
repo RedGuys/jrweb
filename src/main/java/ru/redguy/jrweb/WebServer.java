@@ -28,7 +28,7 @@ public class WebServer {
         this.options = options;
         this.rootRouter = new Router();
         if (this.options.isEnableSessionStorage()) {
-            this.sessionStorage = new SessionStorage();
+            this.sessionStorage = new SessionStorage(this);
         }
     }
 

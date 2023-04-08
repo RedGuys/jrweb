@@ -15,10 +15,10 @@ Java webserver implementation mostly without any external dependencies (only jet
 - Chunked transfer encoding
 - GZIP compression
 - Basic authentication
+- Sessions
 
 ## Planned features
 
-- Sessions
 - Logging
 - Error pages
 - Custom error pages

@@ -15,6 +15,8 @@ public class WebServerOptions {
     private Compressor compressor = null;
     private boolean enableSessionStorage = false;
     private long sessionTTL = -1;
+    private long sessionCheckInterval = 60;
+    private boolean removeExpiredSessionsOnAccess = false;
 
     public int getSocketBacklog() {
         return socketBacklog;
@@ -30,6 +32,18 @@ public class WebServerOptions {
 
     public boolean isEnableSessionStorage() {
         return enableSessionStorage;
+    }
+
+    public long getSessionTTL() {
+        return sessionTTL;
+    }
+
+    public long getSessionCheckInterval() {
+        return sessionCheckInterval;
+    }
+
+    public boolean isRemoveExpiredSessionsOnAccess() {
+        return removeExpiredSessionsOnAccess;
     }
 
     /**
@@ -95,6 +109,29 @@ public class WebServerOptions {
     public WebServerOptions enableSessionStorage(long sessionTTL) {
         this.enableSessionStorage = true;
         this.sessionTTL = sessionTTL;
+        return this;
+    }
+
+    /**
+     * Enables session storage.
+     * @param sessionTTL session time to live in seconds.
+     * @param sessionCheckInterval session check interval in seconds.
+     * @return self.
+     */
+    public WebServerOptions enableSessionStorage(long sessionTTL, long sessionCheckInterval) {
+        this.enableSessionStorage = true;
+        this.sessionTTL = sessionTTL;
+        this.sessionCheckInterval = sessionCheckInterval;
+        return this;
+    }
+
+    /**
+     * Enables check for expired sessions on access.
+     * @param removeExpiredSessionsOnAccess true to enable.
+     * @return self.
+     */
+    public WebServerOptions removeExpiredSessionsOnAccess() {
+        this.removeExpiredSessionsOnAccess = !this.removeExpiredSessionsOnAccess;
         return this;
     }
 }
