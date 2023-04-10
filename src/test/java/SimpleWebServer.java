@@ -3,10 +3,7 @@ import ru.redguy.jrweb.Context;
 import ru.redguy.jrweb.Cookie;
 import ru.redguy.jrweb.WebServer;
 import ru.redguy.jrweb.WebServerOptions;
-import ru.redguy.jrweb.presets.BasicAuthorizationMiddleware;
-import ru.redguy.jrweb.presets.FileRouter;
-import ru.redguy.jrweb.presets.ResourcesRouter;
-import ru.redguy.jrweb.presets.WebSocket;
+import ru.redguy.jrweb.presets.*;
 import ru.redguy.jrweb.utils.*;
 
 import java.io.ByteArrayOutputStream;
@@ -19,6 +16,9 @@ public class SimpleWebServer {
     public static void main(String[] args) throws IOException {
         WebServer server = new WebServer(new WebServerOptions().enableSessionStorage()/*.enableChunkedTransfer()*//*.enableGzipCompression()*/);
         server.start(80);
+
+        server.addMiddleware(new ProcessTimeLoggingMiddleware.Pre());
+        server.addMiddleware(new ProcessTimeLoggingMiddleware.Post());
 
         server.addPage(new Page("/") {
             @Override
@@ -52,7 +52,7 @@ public class SimpleWebServer {
             }
         });
 
-        server.addPage(new Page(Methods.GET,"/file") {
+        server.addPage(new Page(Methods.GET, "/file") {
             @Override
             public void run(Context context) throws IOException {
                 context.response.setStatusCode(StatusCodes.OK);

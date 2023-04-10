@@ -16,10 +16,10 @@ Java webserver implementation mostly without any external dependencies (only jet
 - GZIP compression
 - Basic authentication
 - Sessions
+- Logging
 
 ## Planned features
 
-- Logging
 - Error pages
 - Custom error pages
 - Custom error codes
