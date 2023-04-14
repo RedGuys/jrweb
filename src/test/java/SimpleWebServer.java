@@ -14,7 +14,7 @@ import java.util.UUID;
 
 public class SimpleWebServer {
     public static void main(String[] args) throws IOException {
-        WebServer server = new WebServer(new WebServerOptions().enableSessionStorage()/*.enableChunkedTransfer()*//*.enableGzipCompression()*/);
+        WebServer server = new WebServer(new WebServerOptions().showExceptions().enableSessionStorage()/*.enableChunkedTransfer()*//*.enableGzipCompression()*/);
         server.start(80);
 
         server.addMiddleware(new ProcessTimeLoggingMiddleware.Pre());
@@ -115,6 +115,13 @@ public class SimpleWebServer {
             @Override
             public void run(Context context) throws IOException {
                 context.response.send(String.valueOf(context.session.get(Counter.class).increment()));
+            }
+        });
+
+        server.addPage(new Page("/error") {
+            @Override
+            public void run(Context context) throws IOException {
+                throw new RuntimeException("Test error");
             }
         });
     }

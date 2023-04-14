@@ -54,12 +54,21 @@ public class Router {
             for (Middleware middleware : middlewares) {
                 middleware.processRequest(context.request.url.substring(path.length() + pattern.toString().length()), MiddlewarePosition.AFTER, context);
             }
-        } catch (IOException e) {
+        } catch (Exception e) {
             if (!context.response.isHeadersSent()) {
                 context.response.setStatusCode(StatusCodes.INTERNAL_SERVER_ERROR);
                 context.response.send("Internal Server Error");
+                if(context.response.webServer.getOptions().isShowExceptions()) {
+                    //print like printStackTrace
+                    context.response.send("\r\n");
+                    context.response.send(e.toString());
+                    StackTraceElement[] trace = e.getStackTrace();
+                    for (StackTraceElement traceElement : trace)
+                        context.response.send("\n\tat " + traceElement+"\r\r");
+                }
             }
             e.printStackTrace();
+            context.processed = true;
         }
     }
 

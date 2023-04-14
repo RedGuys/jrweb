@@ -7,6 +7,7 @@ import ru.redguy.jrweb.utils.Gzip;
 
 /**
  * Web server options.
+ *
  * @author RedGuy
  */
 public class WebServerOptions {
@@ -17,6 +18,7 @@ public class WebServerOptions {
     private long sessionTTL = -1;
     private long sessionCheckInterval = 60;
     private boolean removeExpiredSessionsOnAccess = false;
+    private boolean showExceptions = false;
 
     public int getSocketBacklog() {
         return socketBacklog;
@@ -46,8 +48,13 @@ public class WebServerOptions {
         return removeExpiredSessionsOnAccess;
     }
 
+    public boolean isShowExceptions() {
+        return showExceptions;
+    }
+
     /**
      * Sets socket backlog.
+     *
      * @param socketBacklog requested maximum length of the queue of incoming connections.
      * @return self.
      */
@@ -58,6 +65,7 @@ public class WebServerOptions {
 
     /**
      * Enables chunked transfer.
+     *
      * @return self.
      */
     public WebServerOptions enableChunkedTransfer() {
@@ -67,6 +75,7 @@ public class WebServerOptions {
 
     /**
      * Enables gzip compression.
+     *
      * @return self.
      */
     public WebServerOptions enableGzipCompression() {
@@ -76,6 +85,7 @@ public class WebServerOptions {
 
     /**
      * Enables deflate compression.
+     *
      * @return self.
      */
     public WebServerOptions enableDeflateCompression() {
@@ -85,6 +95,7 @@ public class WebServerOptions {
 
     /**
      * Enables brotli compression.
+     *
      * @return self.
      */
     public WebServerOptions enableBrotliCompression() {
@@ -94,6 +105,7 @@ public class WebServerOptions {
 
     /**
      * Enables session storage.
+     *
      * @return self.
      */
     public WebServerOptions enableSessionStorage() {
@@ -103,6 +115,7 @@ public class WebServerOptions {
 
     /**
      * Enables session storage.
+     *
      * @param sessionTTL session time to live in seconds.
      * @return self.
      */
@@ -114,7 +127,8 @@ public class WebServerOptions {
 
     /**
      * Enables session storage.
-     * @param sessionTTL session time to live in seconds.
+     *
+     * @param sessionTTL           session time to live in seconds.
      * @param sessionCheckInterval session check interval in seconds.
      * @return self.
      */
@@ -127,11 +141,22 @@ public class WebServerOptions {
 
     /**
      * Enables check for expired sessions on access.
+     *
      * @param removeExpiredSessionsOnAccess true to enable.
      * @return self.
      */
     public WebServerOptions removeExpiredSessionsOnAccess() {
         this.removeExpiredSessionsOnAccess = !this.removeExpiredSessionsOnAccess;
+        return this;
+    }
+
+    /**
+     * Enables showing exceptions.
+     *
+     * @return self.
+     */
+    public WebServerOptions showExceptions() {
+        this.showExceptions = !this.showExceptions;
         return this;
     }
 }

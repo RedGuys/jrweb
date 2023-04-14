@@ -16,7 +16,7 @@ public class Response {
     public BufferedWriter writer;
     public OutputStream outputStream;
     private boolean headersSent = false;
-    private WebServer webServer;
+    public WebServer webServer;
 
     public Response(WebServer webServer, BufferedWriter writer, OutputStream outputStream) {
         this.webServer = webServer;
