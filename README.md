@@ -17,14 +17,7 @@ Java webserver implementation mostly without any external dependencies (only jet
 - Basic authentication
 - Sessions
 - Logging
-
-## Planned features
-
 - Error pages
-- Custom error pages
-- Custom error codes
-- Custom error messages
-- Custom error handlers
 
 ## Installation
 ```groovy

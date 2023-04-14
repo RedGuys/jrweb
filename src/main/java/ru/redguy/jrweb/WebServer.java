@@ -18,6 +18,7 @@ public class WebServer {
     private boolean started = false;
     private Router rootRouter;
     private SessionStorage sessionStorage;
+    private ErrorHandlers errorHandlers = new ErrorHandlers();
 
 
     public WebServer() {
@@ -90,8 +91,7 @@ public class WebServer {
         rootRouter.processRequest("", context);
 
         if (!context.processed) {
-            context.response.setStatusCode(StatusCodes.NOT_FOUND);
-            context.response.send("Not found");
+            errorHandlers.on404(context);
         } else {
             context.response.finish();
         }
@@ -155,6 +155,14 @@ public class WebServer {
         }
 
         return router;
+    }
+
+    public void setErrorHandlers(ErrorHandlers errorHandlers) {
+        this.errorHandlers = errorHandlers;
+    }
+
+    public ErrorHandlers getErrorHandlers() {
+        return errorHandlers;
     }
 
     protected SessionStorage getSessionStorage() {
