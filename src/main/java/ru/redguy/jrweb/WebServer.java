@@ -2,6 +2,7 @@ package ru.redguy.jrweb;
 
 import org.jetbrains.annotations.NotNull;
 import ru.redguy.jrweb.utils.*;
+import ru.redguy.jrweb.utils.bodyparsers.BodyParser;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
@@ -13,6 +14,11 @@ import java.net.ServerSocket;
  * @author RedGuy
  */
 public class WebServer {
+
+    static {
+        BodyParser.init();
+    }
+
     private ServerSocketThread socket;
     private final WebServerOptions options;
     private boolean started = false;

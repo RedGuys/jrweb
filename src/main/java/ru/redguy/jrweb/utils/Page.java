@@ -2,6 +2,7 @@ package ru.redguy.jrweb.utils;
 
 import org.jetbrains.annotations.NotNull;
 import ru.redguy.jrweb.Context;
+import ru.redguy.jrweb.utils.bodyparsers.BodyParser;
 
 import java.io.IOException;
 import java.util.regex.Pattern;
@@ -21,6 +22,9 @@ public abstract class Page {
 
     public void processRequest(String path,@NotNull Context context) throws IOException {
         if(regex.matcher(path).matches()&& (method == null || method.equals(context.request.method))) {
+            if(BodyParser.bodyParsers.containsKey(context.request.headers.getFirst(Headers.Request.CONTENT_TYPE).getValue())) {
+                BodyParser.bodyParsers.get(context.request.headers.getFirst(Headers.Request.CONTENT_TYPE).getValue()).parse(context);
+            }
             run(context);
             context.processed = true;
         }

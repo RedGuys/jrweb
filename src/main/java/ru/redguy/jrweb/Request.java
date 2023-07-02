@@ -5,6 +5,7 @@ import ru.redguy.jrweb.utils.*;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.HashMap;
 
 public class Request {
     public BufferedReader reader;
@@ -12,6 +13,7 @@ public class Request {
     public Method method = Methods.GET;
     public String url = "/";
     public HeadersList headers = new HeadersList();
+    public HashMap<String, String> params = new HashMap<>();
 
     public Request(BufferedReader reader) throws IOException {
         this.reader = reader;
