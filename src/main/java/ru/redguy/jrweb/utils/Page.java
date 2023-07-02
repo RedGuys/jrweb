@@ -22,8 +22,10 @@ public abstract class Page {
 
     public void processRequest(String path,@NotNull Context context) throws IOException {
         if(regex.matcher(path).matches()&& (method == null || method.equals(context.request.method))) {
-            if(BodyParser.bodyParsers.containsKey(context.request.headers.getFirst(Headers.Request.CONTENT_TYPE).getValue())) {
-                BodyParser.bodyParsers.get(context.request.headers.getFirst(Headers.Request.CONTENT_TYPE).getValue()).parse(context);
+            if(context.request.headers.has(Headers.Request.CONTENT_TYPE)) {
+                if (BodyParser.bodyParsers.containsKey(context.request.headers.getFirst(Headers.Request.CONTENT_TYPE).getValue())) {
+                    BodyParser.bodyParsers.get(context.request.headers.getFirst(Headers.Request.CONTENT_TYPE).getValue()).parse(context);
+                }
             }
             run(context);
             context.processed = true;
