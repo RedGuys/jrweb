@@ -2,6 +2,7 @@ package ru.redguy.jrweb;
 
 import org.jetbrains.annotations.NotNull;
 import ru.redguy.jrweb.utils.Session;
+import ru.redguy.jrweb.utils.StatusCodes;
 
 public class Context {
     public Request request;
@@ -16,4 +17,9 @@ public class Context {
 
     public boolean cancelled = false;
     public boolean processed = false;
+
+    public void redirect(@NotNull String url) {
+        response.setStatusCode(StatusCodes.FOUND(url));
+        processed = true;
+    }
 }
