@@ -22,7 +22,7 @@ public class URLEncodedBodyParser extends BodyParser {
                 stringBuilder.append(c);
             }
             String[] params = stringBuilder.toString().split("&");
-            HashMap<String, String> parameters = new HashMap<>();
+            HashMap<String, Object> parameters = new HashMap<>();
             for (String param : params) {
                 String[] keyValue = param.split("=");
                 if(keyValue.length == 2)

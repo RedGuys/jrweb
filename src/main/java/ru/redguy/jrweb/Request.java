@@ -12,8 +12,9 @@ public class Request {
     public InputStream stream;
     public Method method = Methods.GET;
     public String url = "/";
+    public HashMap<String, String> query = new HashMap<>();
     public HeadersList headers = new HeadersList();
-    public HashMap<String, String> params = new HashMap<>();
+    public HashMap<String, Object> params = new HashMap<>();
 
     public Request(BufferedReader reader) throws IOException {
         this.reader = reader;
@@ -23,6 +24,18 @@ public class Request {
         String line = reader.readLine();
         method = Methods.getMethod(line.split(" ")[0]);
         url = line.split(" ")[1];
+        if (url.contains("?")) {
+            String[] split = url.split("\\?");
+            url = split[0];
+            String[] query = split[1].split("&");
+            for (String s : query) {
+                String[] keyValue = s.split("=");
+                if (keyValue.length == 2)
+                    this.query.put(keyValue[0], keyValue[1]);
+                else
+                    this.query.put(keyValue[0], "");
+            }
+        }
 
         while (!(line = reader.readLine()).equals("")) {
             headers.add(line);
