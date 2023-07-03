@@ -25,7 +25,11 @@ public class URLEncodedBodyParser extends BodyParser {
             HashMap<String, String> parameters = new HashMap<>();
             for (String param : params) {
                 String[] keyValue = param.split("=");
-                parameters.put(URLDecoder.decode(keyValue[0], "UTF-8"), URLDecoder.decode(keyValue[1], "UTF-8"));
+                if(keyValue.length == 2)
+                    parameters.put(URLDecoder.decode(keyValue[0], "UTF-8"), URLDecoder.decode(keyValue[1], "UTF-8"));
+                else
+                    parameters.put(URLDecoder.decode(keyValue[0], "UTF-8"), "");
+
             }
             context.request.params = parameters;
         } catch (IOException e) {
