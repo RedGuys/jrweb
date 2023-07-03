@@ -28,7 +28,7 @@ public class ResourcesRouter extends Router {
         String fPath = context.request.url.substring(path.length() + pattern.toString().length());
         if (fPath.startsWith("/") || fPath.startsWith("\\")) fPath = fPath.substring(1);
 
-        InputStream is = getClass().getClassLoader().getResourceAsStream(fPath);
+        InputStream is = getClass().getClassLoader().getResourceAsStream(contentRoot+"/"+fPath);
         if (is != null) {
             context.response.setStatusCode(StatusCodes.OK);
             try {
