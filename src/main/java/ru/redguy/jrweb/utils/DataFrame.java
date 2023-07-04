@@ -10,6 +10,7 @@ import java.nio.charset.StandardCharsets;
 public class DataFrame {
 
     public enum PacketType {
+        CONTINUATION,
         TEXT,
         BINARY,
         CLOSE
@@ -28,6 +29,9 @@ public class DataFrame {
 
         int opcode = header[0] & 0x0F;
         switch (opcode) {
+            case 0x00:
+                type = PacketType.CONTINUATION;
+                break;
             case 0x01:
                 type = PacketType.TEXT;
                 break;
