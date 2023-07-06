@@ -10,6 +10,7 @@ import java.util.HashMap;
 public class Request {
     public BufferedReader reader;
     public InputStream stream;
+    public String httpVersion = "HTTP/2";
     public Method method = Methods.GET;
     public String url = "/";
     public HashMap<String, String> query = new HashMap<>();
@@ -24,6 +25,7 @@ public class Request {
         String line = reader.readLine();
         method = Methods.getMethod(line.split(" ")[0]);
         url = line.split(" ")[1];
+        httpVersion = line.split(" ")[2];
         if (url.contains("?")) {
             String[] split = url.split("\\?");
             url = split[0];

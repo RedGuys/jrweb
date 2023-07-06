@@ -13,6 +13,7 @@ public class Context {
     public Context(Request request, Response response) {
         this.request = request;
         this.response = response;
+        this.response.setContext(this);
     }
 
     public boolean cancelled = false;

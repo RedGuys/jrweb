@@ -17,11 +17,16 @@ public class Response {
     public OutputStream outputStream;
     private boolean headersSent = false;
     public WebServer webServer;
+    public Context context;
 
     public Response(WebServer webServer, BufferedWriter writer, OutputStream outputStream) {
         this.webServer = webServer;
         this.writer = writer;
         this.outputStream = outputStream;
+    }
+
+    protected void setContext(Context context) {
+        this.context = context;
     }
 
     public boolean send(String str) {
@@ -82,7 +87,7 @@ public class Response {
         if (headersSent) return;
         generateTransferEncoding();
         try {
-            writer.write("HTTP/2 ");
+            writer.write(context.request.httpVersion + " ");
             writer.write(statusCode.generate());
             writer.write("\r\n");
             writer.write(headers.generate());
@@ -97,10 +102,10 @@ public class Response {
 
     private void generateTransferEncoding() {
         if (webServer.getOptions().isEnableChunkedTransfer()) {
-            headers.add(Headers.Response.TRANSFER_ENCODING,"chunked");
+            headers.add(Headers.Response.TRANSFER_ENCODING, "chunked");
         }
-        if(webServer.getOptions().getCompressor() != null) {
-            headers.add(Headers.Response.CONTENT_ENCODING,webServer.getOptions().getCompressor().getName());
+        if (webServer.getOptions().getCompressor() != null) {
+            headers.add(Headers.Response.CONTENT_ENCODING, webServer.getOptions().getCompressor().getName());
         }
     }
 
