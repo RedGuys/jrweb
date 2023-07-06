@@ -56,6 +56,8 @@ public abstract class WebSocket extends Page {
                 context.response.flushHeaders();
                 context.response.send("\r\n");
 
+                onOpen(context);
+
                 while (true) {
                     DataFrame frame = new DataFrame(context.request.stream); //This is not good, but who cares :3
                     switch (frame.getType()) {
@@ -113,6 +115,10 @@ public abstract class WebSocket extends Page {
     public abstract void onMessage(Context ctx, DataFrame frame);
 
     public void onClose(Context ctx) {
+        // Do nothing
+    }
+
+    public void onOpen(Context ctx) {
         // Do nothing
     }
 }
