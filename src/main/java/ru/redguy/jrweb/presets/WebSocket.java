@@ -6,6 +6,7 @@ import ru.redguy.jrweb.Context;
 import ru.redguy.jrweb.utils.*;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Base64;
@@ -75,8 +76,8 @@ public abstract class WebSocket extends Page {
     }
 
     public void send(@NotNull Context context, @NotNull String text) throws IOException {
-        context.response.outputStream.write(createHeaderBytes(text.getBytes().length));
-        context.response.outputStream.write(text.getBytes());
+        context.response.outputStream.write(createHeaderBytes(text.getBytes(StandardCharsets.UTF_8).length));
+        context.response.outputStream.write(text.getBytes(StandardCharsets.UTF_8));
     }
 
     @Contract(pure = true)
