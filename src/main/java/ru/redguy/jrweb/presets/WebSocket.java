@@ -43,8 +43,8 @@ public abstract class WebSocket extends Page {
 
     @Override
     public void run(Context context) throws IOException {
-        if (context.request.headers.has(Headers.Common.CONNECTION) && context.request.headers.getFirst(Headers.Common.CONNECTION).getValue().equals("Upgrade")) {
-            if (context.request.headers.has(Headers.Common.UPGRADE) && context.request.headers.getFirst(Headers.Common.UPGRADE).getValue().equals("websocket")) {
+        if (context.request.headers.has(Headers.Common.CONNECTION) && context.request.headers.getFirst(Headers.Common.CONNECTION).getValue().equalsIgnoreCase("upgrade")) {
+            if (context.request.headers.has(Headers.Common.UPGRADE) && context.request.headers.getFirst(Headers.Common.UPGRADE).getValue().equalsIgnoreCase("websocket")) {
                 context.response.setStatusCode(StatusCodes.SWITCHING_PROTOCOLS("websocket", "Upgrade"));
                 String key = context.request.headers.getFirst(Headers.Request.SEC_WEBSOCKET_KEY).getValue().trim();
                 key = key + "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
