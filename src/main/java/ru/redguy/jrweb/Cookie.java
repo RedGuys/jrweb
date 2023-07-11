@@ -24,6 +24,7 @@ public class Cookie {
     public Cookie(String name, String value, String path) {
         this.name = name;
         this.value = value;
+        this.path = path;
     }
 
     public String getName() {
