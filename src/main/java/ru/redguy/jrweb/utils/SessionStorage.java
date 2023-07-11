@@ -42,7 +42,7 @@ public class SessionStorage {
             Session session = new Session(Instant.now().plus(webServer.getOptions().getSessionTTL(), ChronoUnit.SECONDS));
             String sessionId = generateSessionId();
             sessions.put(sessionId, session);
-            context.cookies.addCookie(new Cookie("jrsession", sessionId));
+            context.cookies.addCookie(new Cookie("jrsession", sessionId, "/"));
             return session;
         }
     }

@@ -18,7 +18,7 @@ public class HeadersList {
     public void add(@NotNull HeaderValue headerValue, boolean replaceExisting) {
         if(!headerValue.getHeader().isAllowMultiple()) {
             for (HeaderValue value : headers) {
-                if (value.getHeader().getName().equals(headerValue.getHeader().getName())) {
+                if (value.getHeader().getName().equalsIgnoreCase(headerValue.getHeader().getName())) {
                     if(replaceExisting) {
                         headers.remove(value);
                     } else {
@@ -48,7 +48,7 @@ public class HeadersList {
     }
 
     public void remove(Header header) {
-        headers.removeIf(value -> value.getHeader().getName().equals(header.getName()));
+        headers.removeIf(value -> value.getHeader().getName().equalsIgnoreCase(header.getName()));
     }
 
     public void remove(HeaderValue headerValue) {
@@ -56,15 +56,15 @@ public class HeadersList {
     }
 
     public void remove(Header header, String value) {
-        headers.removeIf(headerValue -> headerValue.getHeader().getName().equals(header.getName()) && Objects.equals(headerValue.getValue(),value));
+        headers.removeIf(headerValue -> headerValue.getHeader().getName().equalsIgnoreCase(header.getName()) && Objects.equals(headerValue.getValue(),value));
     }
 
     public HeaderValue[] get(Header header) {
-        return headers.stream().filter(hv -> Objects.equals(hv.getHeader().getName(), header.getName())).toArray(HeaderValue[]::new);
+        return headers.stream().filter(hv -> Objects.equals(hv.getHeader().getName().toLowerCase(), header.getName().toLowerCase())).toArray(HeaderValue[]::new);
     }
 
     public HeaderValue getFirst(Header header) {
-        return headers.stream().filter(hv -> Objects.equals(hv.getHeader().getName(), header.getName())).findFirst().orElse(null);
+        return headers.stream().filter(hv -> Objects.equals(hv.getHeader().getName().toLowerCase(), header.getName().toLowerCase())).findFirst().orElse(null);
     }
 
     public Iterator<HeaderValue> iterator() {
@@ -82,6 +82,6 @@ public class HeadersList {
     }
 
     public boolean has(Header header) {
-        return headers.stream().anyMatch(hv -> Objects.equals(hv.getHeader().getName(), header.getName()));
+        return headers.stream().anyMatch(hv -> Objects.equals(hv.getHeader().getName().toLowerCase(), header.getName().toLowerCase()));
     }
 }
