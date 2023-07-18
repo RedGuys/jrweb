@@ -8,6 +8,7 @@ public class Cookie {
     private String value;
     private String path;
     private String expires;
+    private Long maxAge;
 
     @Contract(pure = true)
     public Cookie(@NotNull String cookie) {
@@ -55,6 +56,15 @@ public class Cookie {
         this.expires = expires;
     }
 
+    public Long getMaxAge() {
+        return maxAge;
+    }
+
+    public Cookie setMaxAge(Long maxAge) {
+        this.maxAge = maxAge;
+        return this;
+    }
+
     @Override
     public String toString() {
         StringBuilder stringBuilder = new StringBuilder();
@@ -68,6 +78,10 @@ public class Cookie {
         if(expires != null) {
             stringBuilder.append("; Expires=");
             stringBuilder.append(expires);
+        }
+        if(maxAge != null) {
+            stringBuilder.append("; Max-Age=");
+            stringBuilder.append(maxAge);
         }
         stringBuilder.append(";");
         return stringBuilder.toString();

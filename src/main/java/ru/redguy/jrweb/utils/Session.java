@@ -1,5 +1,7 @@
 package ru.redguy.jrweb.utils;
 
+import org.jetbrains.annotations.Nullable;
+
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.time.Instant;
@@ -7,9 +9,9 @@ import java.util.HashMap;
 
 public class Session {
     private HashMap<Class<? extends SessionData>, SessionData> data = new HashMap<>();
-    public Instant deleteAt;
+    public @Nullable Instant deleteAt;
 
-    public Session(Instant deleteAt) {
+    public Session(@Nullable Instant deleteAt) {
         this.deleteAt = deleteAt;
     }
 

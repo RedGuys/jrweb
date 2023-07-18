@@ -26,7 +26,7 @@ public class ClientSocketThread implements Runnable {
     @Override
     public void run() {
         try {
-            Context context = new Context(new Request(bufferedReader), new Response(webServer, bufferedWriter, socket.getOutputStream()));
+            Context context = new Context(new Request(bufferedReader, socket), new Response(webServer, bufferedWriter, socket.getOutputStream()));
             context.request.stream = socket.getInputStream();
             context.request.parseRequest(context, webServer);
             webServer.processRequest(context);

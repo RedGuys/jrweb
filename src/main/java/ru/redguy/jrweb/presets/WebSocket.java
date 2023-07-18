@@ -60,7 +60,14 @@ public abstract class WebSocket extends Page {
                 onOpen(context);
 
                 while (true) {
-                    DataFrame frame = new DataFrame(context.request.stream); //This is not good, but who cares :3
+                    if(context.request.socket.isClosed()) {
+                        onClose(context);
+                        return;
+                    }
+                    DataFrame frame = DataFrame.parseDataFrame(context.request.stream);
+                    if(frame == null) {
+                        continue;
+                    }
                     switch (frame.getType()) {
                         case CLOSE:
                             onClose(context);
@@ -75,7 +82,7 @@ public abstract class WebSocket extends Page {
         }
     }
 
-    public void send(@NotNull Context context, @NotNull String text) throws IOException {
+    public static void send(@NotNull Context context, @NotNull String text) throws IOException {
         context.response.outputStream.write(createHeaderBytes(text.getBytes(StandardCharsets.UTF_8).length));
         context.response.outputStream.write(text.getBytes(StandardCharsets.UTF_8));
     }

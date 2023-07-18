@@ -1,6 +1,7 @@
 package ru.redguy.jrweb.utils;
 
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -23,10 +24,11 @@ public class DataFrame {
     private final byte[] payload;
     private final PacketType type;
 
-    public DataFrame(@NotNull InputStream input) throws IOException {
+    public static @Nullable DataFrame parseDataFrame(@NotNull InputStream input) throws IOException {
         byte[] header = new byte[2];
-        input.read(header);
+        if(input.read(header)==-1) return null;
 
+        PacketType type;
         int opcode = header[0] & 0x0F;
         switch (opcode) {
             case 0x00:
@@ -72,6 +74,11 @@ public class DataFrame {
             }
         }
 
+        return new DataFrame(type, payload);
+    }
+
+    private DataFrame(PacketType type, byte[] payload) {
+        this.type = type;
         this.payload = payload;
     }
 

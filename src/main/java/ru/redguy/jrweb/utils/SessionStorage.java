@@ -27,22 +27,22 @@ public class SessionStorage {
 
     public Session get(@NotNull Context context) {
         if (webServer.getOptions().isRemoveExpiredSessionsOnAccess()) {
-            sessions.entrySet().removeIf(entry -> entry.getValue().deleteAt.isBefore(Instant.now()));
+            sessions.entrySet().removeIf(entry -> entry.getValue().deleteAt!=null&&entry.getValue().deleteAt.isBefore(Instant.now()));
         }
         if (context.cookies.hasCookie("jrsession")) {
             String sessionId = context.cookies.getCookie("jrsession");
             if (sessions.containsKey(sessionId)) {
                 return sessions.get(sessionId);
             } else {
-                Session session = new Session(Instant.now().plus(webServer.getOptions().getSessionTTL(), ChronoUnit.SECONDS));
+                Session session = new Session(webServer.getOptions().getSessionTTL() == -1?null:Instant.now().plus(webServer.getOptions().getSessionTTL(), ChronoUnit.SECONDS));
                 sessions.put(sessionId, session);
                 return session;
             }
         } else {
-            Session session = new Session(Instant.now().plus(webServer.getOptions().getSessionTTL(), ChronoUnit.SECONDS));
+            Session session = new Session(webServer.getOptions().getSessionTTL() == -1?null:Instant.now().plus(webServer.getOptions().getSessionTTL(), ChronoUnit.SECONDS));
             String sessionId = generateSessionId();
             sessions.put(sessionId, session);
-            context.cookies.addCookie(new Cookie("jrsession", sessionId, "/"));
+            context.cookies.addCookie(new Cookie("jrsession", sessionId, "/").setMaxAge(86400L));
             return session;
         }
     }

@@ -5,11 +5,13 @@ import ru.redguy.jrweb.utils.*;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.Socket;
 import java.util.HashMap;
 
 public class Request {
     public BufferedReader reader;
     public InputStream stream;
+    public Socket socket;
     public String httpVersion = "HTTP/2";
     public Method method = Methods.GET;
     public String url = "/";
@@ -17,8 +19,9 @@ public class Request {
     public HeadersList headers = new HeadersList();
     public HashMap<String, Object> params = new HashMap<>();
 
-    public Request(BufferedReader reader) throws IOException {
+    public Request(BufferedReader reader, Socket socket) throws IOException {
         this.reader = reader;
+        this.socket = socket;
     }
 
     protected void parseRequest(Context context, WebServer webServer) throws IOException {

@@ -7,7 +7,7 @@ plugins {
 }
 
 group 'ru.redguy'
-version '1.10.12'
+version '1.10.19'
 
 def brotliVersion = "1.11.0"
 def operatingSystem = DefaultNativePlatform.getCurrentOperatingSystem()

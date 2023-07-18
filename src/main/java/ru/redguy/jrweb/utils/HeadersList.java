@@ -84,4 +84,16 @@ public class HeadersList {
     public boolean has(Header header) {
         return headers.stream().anyMatch(hv -> Objects.equals(hv.getHeader().getName().toLowerCase(), header.getName().toLowerCase()));
     }
+
+    @Override
+    public String toString() {
+        StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append("{");
+        for (HeaderValue header : headers) {
+            stringBuilder.append(header.getHeader().getName()).append("=").append(header.getValue()).append(",\n");
+        }
+        stringBuilder.setLength(Math.max(stringBuilder.length() - 1, 1));
+        stringBuilder.append("}");
+        return stringBuilder.toString();
+    }
 }
