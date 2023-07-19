@@ -66,7 +66,15 @@ public class DataFrame {
         }
 
         byte[] payload = new byte[payloadLength];
-        input.read(payload);
+        //read payload fully
+        int read = 0;
+        while (read < payloadLength) {
+            int r = input.read(payload, read, payloadLength - read);
+            if (r == -1) {
+                throw new IOException("Unexpected end of stream");
+            }
+            read += r;
+        }
 
         if (masked) {
             for (int i = 0; i < payload.length; i++) {
