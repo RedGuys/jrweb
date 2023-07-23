@@ -70,6 +70,7 @@ public class DataFrame {
         int read = 0;
         while (read < payloadLength) {
             int r = input.read(payload, read, payloadLength - read);
+            if(r == 0) break;
             if (r == -1) {
                 throw new IOException("Unexpected end of stream");
             }

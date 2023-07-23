@@ -64,7 +64,12 @@ public abstract class WebSocket extends Page {
                         onClose(context);
                         return;
                     }
-                    DataFrame frame = DataFrame.parseDataFrame(context.request.stream);
+                    DataFrame frame = null;
+                    try {
+                        frame = DataFrame.parseDataFrame(context.request.stream);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
                     if(frame == null) {
                         continue;
                     }
