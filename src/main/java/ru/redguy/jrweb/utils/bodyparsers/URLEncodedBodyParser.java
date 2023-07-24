@@ -17,8 +17,8 @@ public class URLEncodedBodyParser extends BodyParser {
     public void parse(@NotNull Context context) {
         try {
             StringBuilder stringBuilder = new StringBuilder();
-            while (context.request.reader.ready()) {
-                char c = (char) context.request.reader.read();
+            while (context.reader.ready()) {
+                char c = (char) context.reader.read();
                 stringBuilder.append(c);
             }
             String[] params = stringBuilder.toString().split("&");

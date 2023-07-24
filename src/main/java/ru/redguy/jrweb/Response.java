@@ -5,43 +5,32 @@ import ru.redguy.jrweb.utils.HeadersList;
 import ru.redguy.jrweb.utils.StatusCode;
 import ru.redguy.jrweb.utils.StatusCodes;
 
-import java.io.BufferedWriter;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 
 public class Response {
     public StatusCode statusCode = StatusCodes.OK;
-    private HeadersList headers = new HeadersList();
-    public BufferedWriter writer;
-    public OutputStream outputStream;
+    private final HeadersList headers = new HeadersList();
     private boolean headersSent = false;
-    public WebServer webServer;
-    public Context context;
+    public final Context context;
 
-    public Response(WebServer webServer, BufferedWriter writer, OutputStream outputStream) {
-        this.webServer = webServer;
-        this.writer = writer;
-        this.outputStream = outputStream;
-    }
-
-    protected void setContext(Context context) {
+    public Response(Context context) {
         this.context = context;
     }
 
     public boolean send(String str) {
         if (!headersSent) flushHeaders();
         try {
-            if (webServer.getOptions().getCompressor() != null) {
+            if (context.server.getOptions().getCompressor() != null) {
                 return send(str.getBytes(StandardCharsets.UTF_8));
             }
-            if (webServer.getOptions().isEnableChunkedTransfer()) {
-                writer.write(Integer.toHexString(str.length()));
-                writer.write("\r\n");
+            if (context.server.getOptions().isEnableChunkedTransfer()) {
+                context.outputStream.write(Integer.toHexString(str.length()));
+                context.outputStream.write("\r\n");
             }
-            writer.write(str);
-            if (webServer.getOptions().isEnableChunkedTransfer()) {
-                writer.write("\r\n");
+            context.outputStream.write(str);
+            if (context.server.getOptions().isEnableChunkedTransfer()) {
+                context.outputStream.write("\r\n");
             }
             return true;
         } catch (IOException e) {
@@ -52,19 +41,19 @@ public class Response {
     public boolean send(byte[] bytes) {
         if (!headersSent) flushHeaders();
         try {
-            if (webServer.getOptions().getCompressor() != null) {
-                bytes = webServer.getOptions().getCompressor().compress(bytes);
+            if (context.server.getOptions().getCompressor() != null) {
+                bytes = context.server.getOptions().getCompressor().compress(bytes);
             }
-            if (webServer.getOptions().isEnableChunkedTransfer()) {
-                writer.write(Integer.toHexString(bytes.length));
-                writer.write("\r\n");
+            if (context.server.getOptions().isEnableChunkedTransfer()) {
+                context.outputStream.write(Integer.toHexString(bytes.length));
+                context.outputStream.write("\r\n");
             }
-            writer.flush();
-            outputStream.write(bytes);
-            outputStream.flush();
-            if (webServer.getOptions().isEnableChunkedTransfer()) {
-                writer.write("\r\n");
-                writer.flush();
+            context.outputStream.flush();
+            context.outputStream.write(bytes);
+            context.outputStream.flush();
+            if (context.server.getOptions().isEnableChunkedTransfer()) {
+                context.outputStream.write("\r\n");
+                context.outputStream.flush();
             }
             return true;
         } catch (IOException e) {
@@ -74,10 +63,10 @@ public class Response {
 
     protected void finish() {
         try {
-            if (webServer.getOptions().isEnableChunkedTransfer()) {
-                writer.write("0\r\n\r\n");
+            if (context.server.getOptions().isEnableChunkedTransfer()) {
+                context.outputStream.write("0\r\n\r\n");
             }
-            writer.flush();
+            context.outputStream.flush();
         } catch (IOException e) {
             return;
         }
@@ -87,13 +76,13 @@ public class Response {
         if (headersSent) return;
         generateTransferEncoding();
         try {
-            writer.write(context.request.httpVersion + " ");
-            writer.write(statusCode.generate());
-            writer.write("\r\n");
-            writer.write(headers.generate());
-            writer.write("\r\n");
-            writer.write("\r\n"); //indicating the end of the header section
-            writer.flush();
+            context.outputStream.write(context.request.httpVersion + " ");
+            context.outputStream.write(statusCode.generate());
+            context.outputStream.write("\r\n");
+            context.outputStream.write(headers.generate());
+            context.outputStream.write("\r\n");
+            context.outputStream.write("\r\n"); //indicating the end of the header section
+            context.outputStream.flush();
             headersSent = true;
         } catch (IOException e) {
             return;
@@ -101,11 +90,11 @@ public class Response {
     }
 
     private void generateTransferEncoding() {
-        if (webServer.getOptions().isEnableChunkedTransfer()) {
+        if (context.server.getOptions().isEnableChunkedTransfer()) {
             headers.add(Headers.Response.TRANSFER_ENCODING, "chunked");
         }
-        if (webServer.getOptions().getCompressor() != null) {
-            headers.add(Headers.Response.CONTENT_ENCODING, webServer.getOptions().getCompressor().getName());
+        if (context.server.getOptions().getCompressor() != null) {
+            headers.add(Headers.Response.CONTENT_ENCODING, context.server.getOptions().getCompressor().getName());
         }
     }
 

@@ -23,7 +23,6 @@ public class Headers {
         public static final Header COOKIE = new Header("Cookie");
         public static final Header SEC_WEBSOCKET_KEY = new Header("Sec-WebSocket-Key");
         public static final Header AUTHORIZATION = new Header("Authorization");
-        public static final Header CONTENT_TYPE = new Header("Content-Type");
     }
 
     /**
@@ -45,6 +44,7 @@ public class Headers {
 
         public static final Header CONNECTION = new Header("Connection");
         public static final Header UPGRADE = new Header("Upgrade");
+        public static final Header CONTENT_TYPE = new Header("Content-Type");
     }
 
     public static @NotNull Header getHeader(String name) {

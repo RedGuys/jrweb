@@ -20,34 +20,58 @@ public class WebServerOptions {
     private boolean removeExpiredSessionsOnAccess = false;
     private boolean showExceptions = false;
 
+    /**
+     * @return socket backlog.
+     */
     public int getSocketBacklog() {
         return socketBacklog;
     }
 
+    /**
+     * @return true if chunked transfer is enabled.
+     */
     public boolean isEnableChunkedTransfer() {
         return enableChunkedTransfer;
     }
 
+    /**
+     * @return returns current compressor or null if compression is disabled.
+     */
     public Compressor getCompressor() {
         return compressor;
     }
 
+    /**
+     * @return true if session storage is enabled.
+     */
     public boolean isEnableSessionStorage() {
         return enableSessionStorage;
     }
 
+    /**
+     * @return session time to live in seconds.
+     */
     public long getSessionTTL() {
         return sessionTTL;
     }
 
+    /**
+     * @return session check interval in seconds.
+     */
     public long getSessionCheckInterval() {
         return sessionCheckInterval;
     }
 
+    /**
+     * @return true if remove expired sessions on access is enabled.
+     */
     public boolean isRemoveExpiredSessionsOnAccess() {
         return removeExpiredSessionsOnAccess;
     }
 
+    /**
+     * @return true if show exceptions on web page is enabled.
+     */
     public boolean isShowExceptions() {
         return showExceptions;
     }
@@ -65,7 +89,7 @@ public class WebServerOptions {
 
     /**
      * Enables chunked transfer.
-     *
+     * See <a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Transfer-Encoding#chunked_encoding">Chunked transfer encoding</a>
      * @return self.
      */
     public WebServerOptions enableChunkedTransfer() {
@@ -97,6 +121,8 @@ public class WebServerOptions {
      * Enables brotli compression.
      *
      * @return self.
+     *
+     * @implNote Works only if brotliSupport feature is enabled.
      */
     public WebServerOptions enableBrotliCompression() {
         this.compressor = new Brotli();
@@ -107,6 +133,8 @@ public class WebServerOptions {
      * Enables session storage.
      *
      * @return self.
+     *
+     * @implNote Automatically creates jrsession cookie.
      */
     public WebServerOptions enableSessionStorage() {
         this.enableSessionStorage = true;
@@ -118,6 +146,8 @@ public class WebServerOptions {
      *
      * @param sessionTTL session time to live in seconds.
      * @return self.
+     *
+     * @implNote Automatically creates jrsession cookie.
      */
     public WebServerOptions enableSessionStorage(long sessionTTL) {
         this.enableSessionStorage = true;
@@ -131,6 +161,8 @@ public class WebServerOptions {
      * @param sessionTTL           session time to live in seconds.
      * @param sessionCheckInterval session check interval in seconds.
      * @return self.
+     *
+     * @implNote Works only if brotliSupport feature is enabled.
      */
     public WebServerOptions enableSessionStorage(long sessionTTL, long sessionCheckInterval) {
         this.enableSessionStorage = true;
@@ -140,9 +172,8 @@ public class WebServerOptions {
     }
 
     /**
-     * Enables check for expired sessions on access.
+     * Toggles check for expired sessions on access.
      *
-     * @param removeExpiredSessionsOnAccess true to enable.
      * @return self.
      */
     public WebServerOptions removeExpiredSessionsOnAccess() {
@@ -151,7 +182,7 @@ public class WebServerOptions {
     }
 
     /**
-     * Enables showing exceptions.
+     * Toggles showing exceptions.
      *
      * @return self.
      */

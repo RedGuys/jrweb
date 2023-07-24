@@ -55,7 +55,7 @@ public class Router {
                 middleware.processRequest(context.request.url.substring(path.length() + pattern.toString().length()), MiddlewarePosition.AFTER, context);
             }
         } catch (Exception e) {
-            context.response.webServer.getErrorHandlers().on500(context, e);
+            context.server.getErrorHandlers().on500(context, e);
         }
     }
 

@@ -55,18 +55,17 @@ public abstract class WebSocket extends Page {
                 }
                 context.response.getHeaders().add(Headers.Response.SEC_WEBSOCKET_ACCEPT, key);
                 context.response.flushHeaders();
-                context.response.send("\r\n");
 
                 onOpen(context);
 
                 while (true) {
-                    if(context.request.socket.isClosed()) {
+                    if(context.socket.isClosed()) {
                         onClose(context);
                         return;
                     }
                     DataFrame frame = null;
                     try {
-                        frame = DataFrame.parseDataFrame(context.request.stream);
+                        frame = DataFrame.parseDataFrame(context.socket.getInputStream());
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
@@ -88,8 +87,8 @@ public abstract class WebSocket extends Page {
     }
 
     public static void send(@NotNull Context context, @NotNull String text) throws IOException {
-        context.response.outputStream.write(createHeaderBytes(text.getBytes(StandardCharsets.UTF_8).length));
-        context.response.outputStream.write(text.getBytes(StandardCharsets.UTF_8));
+        context.outputStream.write(createHeaderBytes(text.getBytes(StandardCharsets.UTF_8).length));
+        context.outputStream.write(text.getBytes(StandardCharsets.UTF_8));
     }
 
     @Contract(pure = true)

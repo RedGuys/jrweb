@@ -13,7 +13,7 @@ public class ErrorHandlers {
         if (!context.response.isHeadersSent()) {
             context.response.setStatusCode(StatusCodes.INTERNAL_SERVER_ERROR);
             context.response.send("Internal Server Error");
-            if(context.response.webServer.getOptions().isShowExceptions()) {
+            if(context.server.getOptions().isShowExceptions()) {
                 //print like printStackTrace
                 context.response.send("\r\n");
                 context.response.send(e.toString());

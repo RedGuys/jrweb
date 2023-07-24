@@ -26,11 +26,17 @@ public class WebServer {
     private SessionStorage sessionStorage;
     private ErrorHandlers errorHandlers = new ErrorHandlers();
 
-
+    /**
+     * Constructs a new WebServer with default options.
+     */
     public WebServer() {
         this(new WebServerOptions());
     }
 
+    /**
+     * Constructs a new WebServer with selected options.
+     * @param options instance of WebServerOptions.
+     */
     public WebServer(WebServerOptions options) {
         this.options = options;
         this.rootRouter = new Router();
@@ -39,6 +45,9 @@ public class WebServer {
         }
     }
 
+    /**
+     * @return current server options.
+     */
     public WebServerOptions getOptions() {
         return options;
     }
@@ -56,21 +65,25 @@ public class WebServer {
      *                                  the specified range of valid port values, which is between
      *                                  0 and 65535, inclusive.
      */
-    public boolean start(int port) throws IOException {
+    public boolean start(int port) throws IOException, SecurityException, IllegalArgumentException {
         if (started) return false;
+        checkOptions();
         socket = new ServerSocketThread(this, new ServerSocket(port, options.getSocketBacklog()));
         socket.start();
-        checkOptions();
         started = true;
         return true;
     }
 
+    /**
+     * Internal check of options.
+     */
     private void checkOptions() {
         if (getOptions().getCompressor() != null && getOptions().isEnableChunkedTransfer()) {
             System.out.println("WARNING: Chunked transfer and compression enabled. This may cause problems.");
         }
         if (getOptions().getCompressor() instanceof Brotli && !BrotliUtil.isSupported()) {
-            System.out.println("WARNING: Brotli compression enabled, but brotli library not found. Data will not be sent to clients.");
+            System.out.println("WARNING: Brotli compression enabled, but brotli library not found. Falling back to gzip.");
+            getOptions().enableGzipCompression();
         }
     }
 
@@ -86,12 +99,16 @@ public class WebServer {
      *                           or the security manager's {@code checkAccess} method
      *                           denies access.
      */
-    public boolean stop() throws IOException {
+    public boolean stop() throws IOException, SecurityException {
         if (!started) return false;
         socket.close();
         return true;
     }
 
+    /**
+     * Processes request and sends response. If request is not processed, sends 404 error.
+     * @param context context of request.
+     */
     protected void processRequest(@NotNull Context context) {
         context.response.getHeaders().add(Headers.Response.SERVER, "JRWeb");
         rootRouter.processRequest("", context);
@@ -103,21 +120,41 @@ public class WebServer {
         }
     }
 
+    /**
+     * Adds {@link Middleware} to root {@link Router}.
+     * @param middleware {@link Middleware} to add.
+     * @return added {@link Middleware}.
+     */
     public Middleware addMiddleware(Middleware middleware) {
         rootRouter.add(middleware);
         return middleware;
     }
 
+    /**
+     * Adds {@link Page} to root {@link Router}.
+     * @param page {@link Page} to add.
+     * @return added {@link Page}.
+     */
     public Page addPage(Page page) {
         rootRouter.add(page);
         return page;
     }
 
+    /**
+     * Adds sub-{@link Router} to root {@link Router}.
+     * @param router {@link Router} to add.
+     * @return added {@link Router}.
+     */
     public Router addRouter(Router router) {
         rootRouter.add(router);
         return router;
     }
 
+    /**
+     * Creates new {@link Router} from object and adds it to root {@link Router}. Object must have @{@link Router} annotation. Methods must have @{@link Page} or @{@link Middleware} annotation.
+     * @param object object to create {@link Router} from.
+     * @return created {@link Router}.
+     */
     public Router addRouter(@NotNull Object object) {
         ru.redguy.jrweb.annotations.Router routerAnnotation = object.getClass().getAnnotation(ru.redguy.jrweb.annotations.Router.class);
         if (routerAnnotation == null) throw new IllegalArgumentException("Object must have @Router annotation");
@@ -163,14 +200,24 @@ public class WebServer {
         return router;
     }
 
+    /**
+     * Sets {@link ErrorHandlers}, that will be called on error.
+     * @param errorHandlers error handlers.
+     */
     public void setErrorHandlers(ErrorHandlers errorHandlers) {
         this.errorHandlers = errorHandlers;
     }
 
+    /**
+     * @return current {@link ErrorHandlers}.
+     */
     public ErrorHandlers getErrorHandlers() {
         return errorHandlers;
     }
 
+    /**
+     * @return current {@link SessionStorage}.
+     */
     protected SessionStorage getSessionStorage() {
         return sessionStorage;
     }

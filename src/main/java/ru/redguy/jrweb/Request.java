@@ -2,16 +2,11 @@ package ru.redguy.jrweb;
 
 import ru.redguy.jrweb.utils.*;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
-import java.net.Socket;
 import java.util.HashMap;
 
 public class Request {
-    public BufferedReader reader;
-    public InputStream stream;
-    public Socket socket;
+    public Context context;
     public String httpVersion = "HTTP/2";
     public Method method = Methods.GET;
     public String url = "/";
@@ -19,13 +14,12 @@ public class Request {
     public HeadersList headers = new HeadersList();
     public HashMap<String, Object> params = new HashMap<>();
 
-    public Request(BufferedReader reader, Socket socket) throws IOException {
-        this.reader = reader;
-        this.socket = socket;
+    public Request(Context context) {
+        this.context = context;
     }
 
-    protected void parseRequest(Context context, WebServer webServer) throws IOException {
-        String line = reader.readLine();
+    protected void parseRequest() throws IOException {
+        String line = context.reader.readLine();
         method = Methods.getMethod(line.split(" ")[0]);
         url = line.split(" ")[1];
         httpVersion = line.split(" ")[2];
@@ -42,7 +36,7 @@ public class Request {
             }
         }
 
-        while (!(line = reader.readLine()).equals("")) {
+        while (!(line = context.reader.readLine()).equals("")) {
             headers.add(line);
         }
 
@@ -54,7 +48,7 @@ public class Request {
             }
         }
 
-        if (webServer.getOptions().isEnableSessionStorage())
-            context.session = webServer.getSessionStorage().get(context);
+        if (context.server.getOptions().isEnableSessionStorage())
+            context.session = context.server.getSessionStorage().get(context);
     }
 }

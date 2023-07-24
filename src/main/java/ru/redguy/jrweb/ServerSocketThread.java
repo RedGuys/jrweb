@@ -19,8 +19,12 @@ public class ServerSocketThread extends Thread {
     public ServerSocketThread(WebServer webServer, ServerSocket socket) {
         this.webServer = webServer;
         this.socket = socket;
+        this.setName("ServerSocketThread");
     }
 
+    /**
+     * Accepts new connections and creates new ClientSocketThread for each connection.
+     */
     @Override
     public void run() {
         while (!closing) {

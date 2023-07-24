@@ -22,7 +22,7 @@ public class SimpleWebServer {
 
         server.addPage(new Page("/") {
             @Override
-            public void run(Context context) throws IOException {
+            public void run(Context context) {
                 context.response.setStatusCode(StatusCodes.OK);
                 context.response.send("<html><body>Hello World!<br><a href=\"/redirect\">Redirect</a></body></html>");
             }
@@ -59,6 +59,7 @@ public class SimpleWebServer {
                 InputStream is = SimpleWebServer.class.getResourceAsStream("rick.webp");
                 byte[] bytes = readAllBytes(is);
                 context.response.getHeaders().add(Headers.Response.CONTENT_LENGTH, String.valueOf(bytes.length));
+                context.response.getHeaders().add(Headers.Common.CONTENT_TYPE, "image/webp");
                 context.response.send(bytes);
             }
         });
