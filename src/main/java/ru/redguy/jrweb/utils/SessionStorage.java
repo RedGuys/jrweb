@@ -7,6 +7,7 @@ import ru.redguy.jrweb.WebServer;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
@@ -29,8 +30,9 @@ public class SessionStorage {
         if (webServer.getOptions().isRemoveExpiredSessionsOnAccess()) {
             sessions.entrySet().removeIf(entry -> entry.getValue().deleteAt!=null&&entry.getValue().deleteAt.isBefore(Instant.now()));
         }
-        if (context.cookies.hasCookie("jrsession")) {
-            String sessionId = context.cookies.getCookie("jrsession");
+        Optional<String> cookie = context.cookies.getCookie("jrsession");
+        if (cookie.isPresent()) {
+            String sessionId = cookie.get();
             if (sessions.containsKey(sessionId)) {
                 return sessions.get(sessionId);
             } else {

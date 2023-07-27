@@ -6,18 +6,43 @@ import java.io.IOException;
 import java.util.HashMap;
 
 public class Request {
+     /**
+     * Context of request.
+     */
     public Context context;
+    /**
+     * HTTP version. Be aware of editing this field, some clients may break.
+     */
     public String httpVersion = "HTTP/2";
+    /**
+     * Method of request.
+     */
     public Method method = Methods.GET;
+    /**
+     * URL of request.
+     */
     public String url = "/";
+    /**
+     * Url query data of request.
+     */
     public HashMap<String, String> query = new HashMap<>();
+    /**
+     * Headers of request.
+     */
     public HeadersList headers = new HeadersList();
+    /**
+     * Params of request. Automatically parsed from body depending on {@link Headers.Common#CONTENT_TYPE}
+     */
     public HashMap<String, Object> params = new HashMap<>();
 
     public Request(Context context) {
         this.context = context;
     }
 
+    /**
+     * Parses request. Internal method.
+     * @throws IOException if an I/O error occurs.
+     */
     protected void parseRequest() throws IOException {
         String line = context.reader.readLine();
         method = Methods.getMethod(line.split(" ")[0]);
