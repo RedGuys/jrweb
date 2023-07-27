@@ -32,6 +32,10 @@ public class Context {
     public boolean cancelled = false;
     public boolean processed = false;
 
+    /**
+     * Redirect to url with 302 status code.
+     * @param url url to redirect.
+     */
     public void redirect(@NotNull String url) {
         response.setStatusCode(StatusCodes.FOUND(url));
         processed = true;
