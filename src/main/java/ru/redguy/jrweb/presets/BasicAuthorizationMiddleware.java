@@ -11,10 +11,19 @@ public class BasicAuthorizationMiddleware extends Middleware {
 
     private final AuthorizationChecker checker;
 
+    /**
+     * Basic authorization middleware.
+     * @param checker checker realization.
+     */
     public BasicAuthorizationMiddleware(AuthorizationChecker checker) {
         this(null, checker);
     }
 
+    /**
+     * Basic authorization middleware.
+     * @param method http method to check.
+     * @param checker checker realization.
+     */
     public BasicAuthorizationMiddleware(Method method, AuthorizationChecker checker) {
         super(method);
         this.checker = checker;
@@ -51,13 +60,25 @@ public class BasicAuthorizationMiddleware extends Middleware {
         }
     }
 
+    /**
+     * Restrict access.
+     */
     private void restrict(@NotNull Context ctx) {
         ctx.response.setStatusCode(StatusCodes.UNAUTHORIZED);
         ctx.cancelled = true;
         ctx.response.send("Unauthorized");
     }
 
+    /**
+     * Authorization checker interface.
+     */
     public interface AuthorizationChecker {
+        /**
+         * Check credentials.
+         * @param username username.
+         * @param password password.
+         * @return true if credentials is valid.
+         */
         boolean check(String username, String password);
     }
 }

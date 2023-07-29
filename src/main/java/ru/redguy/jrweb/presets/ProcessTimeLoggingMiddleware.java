@@ -14,6 +14,9 @@ public class ProcessTimeLoggingMiddleware {
 
     public static HashMap<Context, Instant> sessions = new HashMap<>();
 
+    /**
+     * Middleware to record start time of request.
+     */
     public static class Pre extends Middleware {
         @Override
         public void run(@NotNull Context context) throws IOException {
@@ -26,6 +29,9 @@ public class ProcessTimeLoggingMiddleware {
         }
     }
 
+    /**
+     * Middleware to record end time of request and print it.
+     */
     public static class Post extends Middleware {
 
         public Post() {

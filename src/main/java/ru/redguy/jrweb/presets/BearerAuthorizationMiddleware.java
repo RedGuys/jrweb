@@ -10,10 +10,19 @@ public class BearerAuthorizationMiddleware extends Middleware {
 
     private final AuthorizationChecker checker;
 
+    /**
+     * Bearer authorization middleware.
+     * @param checker checker realization.
+     */
     public BearerAuthorizationMiddleware(AuthorizationChecker checker) {
         this(null, checker);
     }
 
+    /**
+     * Bearer authorization middleware.
+     * @param method http method to check.
+     * @param checker checker realization.
+     */
     public BearerAuthorizationMiddleware(Method method, AuthorizationChecker checker) {
         super(method);
         this.checker = checker;
@@ -45,13 +54,24 @@ public class BearerAuthorizationMiddleware extends Middleware {
         }
     }
 
+    /**
+     * Restrict access.
+     */
     private void restrict(@NotNull Context ctx) {
         ctx.response.setStatusCode(StatusCodes.UNAUTHORIZED);
         ctx.cancelled = true;
         ctx.response.send("Unauthorized");
     }
 
+    /**
+     * Authorization checker interface.
+     */
     public interface AuthorizationChecker {
+        /**
+         * Check credentials.
+         * @param token token to check.
+         * @return true if credentials is valid.
+         */
         boolean check(String token);
     }
 }

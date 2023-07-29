@@ -16,6 +16,11 @@ public class FileRouter extends Router {
 
     protected Path contentRoot;
 
+    /**
+     * File router.
+     * @param pattern path pattern.
+     * @param contentRoot root directory.
+     */
     public FileRouter(String pattern, Path contentRoot) {
         super(pattern);
         this.contentRoot = contentRoot;

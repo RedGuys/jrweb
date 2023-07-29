@@ -15,6 +15,11 @@ public class ResourcesRouter extends Router {
 
     protected String contentRoot;
 
+    /**
+     * Router for resources.
+     * @param pattern pattern to match.
+     * @param contentRoot content root.
+     */
     public ResourcesRouter(String pattern, String contentRoot) {
         super(pattern);
         this.contentRoot = contentRoot;
