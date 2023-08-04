@@ -17,13 +17,25 @@ public class Router {
     protected List<Page> pages = new ArrayList<>();
     protected List<Router> routers = new ArrayList<>();
 
+    /**
+     * Constructs global router
+     */
     public Router() {
     }
 
+    /**
+     * Constructs router with pattern
+     * @param pattern regex for request url validation
+     */
     public Router(String pattern) {
         this.pattern = Pattern.compile(pattern);
     }
 
+    /**
+     * Processes input request
+     * @param path current path
+     * @param context request context
+     */
     public void processRequest(@NotNull String path, @NotNull Context context) {
         if (!pattern.matcher(context.request.url.substring(path.length())).find() && !Objects.equals(pattern.toString(), ""))
             return;
@@ -59,19 +71,36 @@ public class Router {
         }
     }
 
+    /**
+     * Changes pattern for router
+     * @param pattern new {@link Pattern}
+     * @return self
+     */
     public Router setPattern(Pattern pattern) {
         this.pattern = pattern;
         return this;
     }
 
+    /**
+     * Adds new {@link Middleware} to router
+     * @param middleware target middleware
+     */
     public void add(Middleware middleware) {
         middlewares.add(middleware);
     }
 
+    /**
+     * Adds new {@link Page} to router
+     * @param page target page
+     */
     public void add(Page page) {
         pages.add(page);
     }
 
+    /**
+     * Adds new {@link Router} to router
+     * @param router target router
+     */
     public void add(Router router) {
         routers.add(router);
     }

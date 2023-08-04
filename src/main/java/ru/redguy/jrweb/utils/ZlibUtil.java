@@ -8,6 +8,12 @@ import java.util.zip.Deflater;
 import java.util.zip.Inflater;
 
 public class ZlibUtil {
+    /**
+     * Compresses original data byte array
+     * @param data input bytes
+     * @return compressed byte array
+     * @throws IOException on unexpected error while closing {@link ByteArrayOutputStream}
+     */
     public static byte @NotNull [] compress(byte[] data) throws IOException {
         Deflater deflater = new Deflater();
         deflater.setInput(data);
@@ -23,6 +29,12 @@ public class ZlibUtil {
         return outputStream.toByteArray();
     }
 
+    /**
+     * Decompresses compressed data to original byte array
+     * @param compressedData compressed byte array
+     * @return original bytes array
+     * @throws IOException on unexpected error while closing {@link ByteArrayOutputStream}
+     */
     public static byte @NotNull [] decompress(byte[] compressedData) throws IOException {
         Inflater inflater = new Inflater();
         inflater.setInput(compressedData);

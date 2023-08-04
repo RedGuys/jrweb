@@ -11,10 +11,19 @@ public class Session {
     private HashMap<Class<? extends SessionData>, SessionData> data = new HashMap<>();
     public @Nullable Instant deleteAt;
 
+    /**
+     * Session default constructor
+     * @param deleteAt Instant when delete this session, null for never
+     */
     public Session(@Nullable Instant deleteAt) {
         this.deleteAt = deleteAt;
     }
 
+    /**
+     * Gets data from this session
+     * @param type Class who extends {@link SessionData} with default zero params constructor
+     * @return instance of type
+     */
     public <T extends SessionData> T get(Class<T> type) {
         if(data.containsKey(type)) {
             return type.cast(data.get(type));
@@ -39,5 +48,13 @@ public class Session {
                 return null;
             }
         }
+    }
+
+    /**
+     * Deletes SessionData from session storage
+     * @param type Class who extends {@link SessionData} with default zero params constructor
+     */
+    public <T extends SessionData> void delete(Class<T> type) {
+        data.remove(type);
     }
 }

@@ -11,6 +11,9 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Base64;
 
+/**
+ * Websocket implementation.
+ */
 public abstract class WebSocket extends Page {
     public WebSocket(String regex) {
         super(regex);
@@ -86,11 +89,22 @@ public abstract class WebSocket extends Page {
         }
     }
 
+    /**
+     * Sends string data to client
+     * @param context connection context
+     * @param text data to send
+     * @throws IOException throws if connection broken
+     */
     public static void send(@NotNull Context context, @NotNull String text) throws IOException {
         context.outputStream.write(createHeaderBytes(text.getBytes(StandardCharsets.UTF_8).length));
         context.outputStream.write(text.getBytes(StandardCharsets.UTF_8));
     }
 
+    /**
+     * Creates header bytes
+     * @param payloadLength length of payload
+     * @return byte array of header
+     */
     @Contract(pure = true)
     private static byte @NotNull [] createHeaderBytes(int payloadLength) {
         byte[] headerBytes;
@@ -124,12 +138,25 @@ public abstract class WebSocket extends Page {
         return headerBytes;
     }
 
+    /**
+     * Callback for new messages from client
+     * @param ctx connection context
+     * @param frame received dataframe
+     */
     public abstract void onMessage(Context ctx, DataFrame frame);
 
+    /**
+     * Callback for closing connection
+     * @param ctx connection context
+     */
     public void onClose(Context ctx) {
         // Do nothing
     }
 
+    /**
+     * Callback for opening connection
+     * @param ctx connection context
+     */
     public void onOpen(Context ctx) {
         // Do nothing
     }

@@ -18,6 +18,10 @@ public class SessionStorage {
     private final ConcurrentHashMap<String, Session> sessions = new ConcurrentHashMap<>();
     private final WebServer webServer;
 
+    /**
+     * Creates SessionStorage for {@link WebServer}
+     * @param webServer target webserver
+     */
     public SessionStorage(@NotNull WebServer webServer) {
         this.webServer = webServer;
         ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
@@ -26,6 +30,11 @@ public class SessionStorage {
         }, webServer.getOptions().getSessionCheckInterval(), webServer.getOptions().getSessionCheckInterval(), TimeUnit.SECONDS);
     }
 
+    /**
+     * Gets session for target {@link Context}
+     * @param context target {@link Context}
+     * @return {@link Session} instance
+     */
     public Session get(@NotNull Context context) {
         if (webServer.getOptions().isRemoveExpiredSessionsOnAccess()) {
             sessions.entrySet().removeIf(entry -> entry.getValue().deleteAt!=null&&entry.getValue().deleteAt.isBefore(Instant.now()));
