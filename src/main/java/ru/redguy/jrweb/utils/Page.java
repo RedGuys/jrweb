@@ -20,6 +20,12 @@ public abstract class Page {
         this.regex = Pattern.compile(regex);
     }
 
+    /**
+     * Tries to process request
+     * @param path path
+     * @param context request context
+     * @throws IOException execption from run implementation
+     */
     public void processRequest(String path,@NotNull Context context) throws IOException {
         if(regex.matcher(path).matches()&& (method == null || method.equals(context.request.method))) {
             if(context.request.headers.has(Headers.Common.CONTENT_TYPE)) {
@@ -31,7 +37,12 @@ public abstract class Page {
             context.processed = true;
         }
     }
-    
+
+    /**
+     * Page logic implementation
+     * @param context request context
+     * @throws IOException
+     */
     public abstract void run(Context context) throws IOException;
 
     public Pattern getRegex() {

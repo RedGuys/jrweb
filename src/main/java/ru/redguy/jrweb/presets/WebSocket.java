@@ -46,44 +46,42 @@ public abstract class WebSocket extends Page {
 
     @Override
     public void run(Context context) throws IOException {
-        if (context.request.headers.has(Headers.Common.CONNECTION) && context.request.headers.getFirst(Headers.Common.CONNECTION).getValue().equalsIgnoreCase("upgrade")) {
-            if (context.request.headers.has(Headers.Common.UPGRADE) && context.request.headers.getFirst(Headers.Common.UPGRADE).getValue().equalsIgnoreCase("websocket")) {
-                context.response.setStatusCode(StatusCodes.SWITCHING_PROTOCOLS("websocket", "Upgrade"));
-                String key = context.request.headers.getFirst(Headers.Request.SEC_WEBSOCKET_KEY).getValue().trim();
-                key = key + "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
-                try {
-                    key = Base64.getEncoder().encodeToString(MessageDigest.getInstance("SHA1").digest(key.getBytes("UTF-8")));
-                } catch (NoSuchAlgorithmException e) {
-                    throw new RuntimeException(e);
+        if (context.request.headers.has(Headers.Common.CONNECTION) && context.request.headers.getFirst(Headers.Common.CONNECTION).getValue().equalsIgnoreCase("upgrade") && context.request.headers.has(Headers.Common.UPGRADE) && context.request.headers.getFirst(Headers.Common.UPGRADE).getValue().equalsIgnoreCase("websocket")) {
+            context.response.setStatusCode(StatusCodes.SWITCHING_PROTOCOLS("websocket", "Upgrade"));
+            String key = context.request.headers.getFirst(Headers.Request.SEC_WEBSOCKET_KEY).getValue().trim();
+            key = key + "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
+            try {
+                key = Base64.getEncoder().encodeToString(MessageDigest.getInstance("SHA1").digest(key.getBytes("UTF-8")));
+            } catch (NoSuchAlgorithmException e) {
+                throw new RuntimeException(e);
+            }
+            context.response.getHeaders().add(Headers.Response.SEC_WEBSOCKET_ACCEPT, key);
+            context.response.flushHeaders();
+
+            onOpen(context);
+
+            while (true) {
+                if (context.socket.isClosed()) {
+                    onClose(context);
+                    return;
                 }
-                context.response.getHeaders().add(Headers.Response.SEC_WEBSOCKET_ACCEPT, key);
-                context.response.flushHeaders();
-
-                onOpen(context);
-
-                while (true) {
-                    if(context.socket.isClosed()) {
+                DataFrame frame = null;
+                try {
+                    frame = DataFrame.parseDataFrame(context.socket.getInputStream());
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                if (frame == null) {
+                    continue;
+                }
+                switch (frame.getType()) {
+                    case CLOSE:
                         onClose(context);
                         return;
-                    }
-                    DataFrame frame = null;
-                    try {
-                        frame = DataFrame.parseDataFrame(context.socket.getInputStream());
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                    if(frame == null) {
-                        continue;
-                    }
-                    switch (frame.getType()) {
-                        case CLOSE:
-                            onClose(context);
-                            return;
-                        case TEXT:
-                        case BINARY:
-                            onMessage(context, frame);
-                            break;
-                    }
+                    case TEXT:
+                    case BINARY:
+                        onMessage(context, frame);
+                        break;
                 }
             }
         }

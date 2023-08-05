@@ -47,6 +47,11 @@ public class Headers {
         public static final Header CONTENT_TYPE = new Header("Content-Type");
     }
 
+    /**
+     * Returns exiting header instance or creates new.
+     * @param name header name
+     * @return Header
+     */
     public static @NotNull Header getHeader(String name) {
         for (Header header : headers) {
             if (header.getName().equals(name)) {
