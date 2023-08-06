@@ -4,6 +4,9 @@ import ru.redguy.jrweb.Cookie;
 import ru.redguy.jrweb.WebServer;
 import ru.redguy.jrweb.WebServerOptions;
 import ru.redguy.jrweb.presets.*;
+import ru.redguy.jrweb.presets.websocket.DataFrame;
+import ru.redguy.jrweb.presets.websocket.WebSocket;
+import ru.redguy.jrweb.presets.websocket.WebSocketConnection;
 import ru.redguy.jrweb.utils.*;
 
 import java.io.ByteArrayOutputStream;
@@ -123,6 +126,21 @@ public class SimpleWebServer {
             @Override
             public void run(Context context) throws IOException {
                 throw new RuntimeException("Test error");
+            }
+        });
+
+        server.addPage(new WebSocket("/web") {
+            @Override
+            public void onOpen(WebSocketConnection connection) {
+                new Thread(() -> {
+                    try {
+                        DataFrame read = connection.awaitRead();
+                        connection.write(read.getPayloadText());
+                        connection.close(1000, "Only one packet");
+                    } catch (InterruptedException | IOException e) {
+                        throw new RuntimeException(e);
+                    }
+                }).start();
             }
         });
     }

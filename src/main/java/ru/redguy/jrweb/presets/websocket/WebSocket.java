@@ -1,4 +1,4 @@
-package ru.redguy.jrweb.presets;
+package ru.redguy.jrweb.presets.websocket;
 
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
@@ -10,11 +10,12 @@ import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Base64;
+import java.util.HashMap;
 
 /**
  * Websocket implementation.
  */
-public abstract class WebSocket extends Page {
+public class WebSocket extends Page {
     public WebSocket(String regex) {
         super(regex);
     }
@@ -44,17 +45,15 @@ public abstract class WebSocket extends Page {
 
     // pesdec
 
+    private HashMap<Context, WebSocketConnection> connections = new HashMap<>();
+
     @Override
-    public void run(Context context) throws IOException {
+    public void run(Context context) throws Exception {
         if (context.request.headers.has(Headers.Common.CONNECTION) && context.request.headers.getFirst(Headers.Common.CONNECTION).getValue().equalsIgnoreCase("upgrade") && context.request.headers.has(Headers.Common.UPGRADE) && context.request.headers.getFirst(Headers.Common.UPGRADE).getValue().equalsIgnoreCase("websocket")) {
             context.response.setStatusCode(StatusCodes.SWITCHING_PROTOCOLS("websocket", "Upgrade"));
             String key = context.request.headers.getFirst(Headers.Request.SEC_WEBSOCKET_KEY).getValue().trim();
             key = key + "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
-            try {
-                key = Base64.getEncoder().encodeToString(MessageDigest.getInstance("SHA1").digest(key.getBytes("UTF-8")));
-            } catch (NoSuchAlgorithmException e) {
-                throw new RuntimeException(e);
-            }
+            key = Base64.getEncoder().encodeToString(MessageDigest.getInstance("SHA1").digest(key.getBytes("UTF-8")));
             context.response.getHeaders().add(Headers.Response.SEC_WEBSOCKET_ACCEPT, key);
             context.response.flushHeaders();
 
@@ -89,8 +88,9 @@ public abstract class WebSocket extends Page {
 
     /**
      * Sends string data to client
+     *
      * @param context connection context
-     * @param text data to send
+     * @param text    data to send
      * @throws IOException throws if connection broken
      */
     public static void send(@NotNull Context context, @NotNull String text) throws IOException {
@@ -98,8 +98,52 @@ public abstract class WebSocket extends Page {
         context.outputStream.write(text.getBytes(StandardCharsets.UTF_8));
     }
 
+    public static void close(@NotNull Context context) throws IOException {
+        close(context, 1000);
+    }
+
+    public static void close(@NotNull Context context, int statusCode) throws IOException {
+        close(context, statusCode, "");
+    }
+
+    public static void close(@NotNull Context context, int statusCode, String reason) throws IOException {
+        try {
+            context.outputStream.write(createClosePacket(statusCode, reason));
+        } finally {
+            context.socket.close();
+        }
+    }
+
+    public static byte @NotNull [] createClosePacket(int statusCode, String reason) {
+        // Convert the status code to two bytes (big-endian)
+        byte[] statusCodeBytes = new byte[2];
+        statusCodeBytes[0] = (byte) ((statusCode >> 8) & 0xFF);
+        statusCodeBytes[1] = (byte) (statusCode & 0xFF);
+
+        byte[] reasonBytes = new byte[0];
+        if (reason != null && !reason.isEmpty()) {
+            reasonBytes = reason.getBytes(StandardCharsets.UTF_8);
+        }
+
+        // Calculate the total length of the payload
+        int payloadLength = 2 + reasonBytes.length;
+
+        // Prepare the first byte indicating that this is a control frame with FIN and opcode 0x08
+        byte firstByte = (byte) 0x88;
+
+        // Construct the frame bytes
+        byte[] frameBytes = new byte[payloadLength + 2]; // Add 2 bytes for the length
+        frameBytes[0] = firstByte;
+        frameBytes[1] = (byte) payloadLength;
+        System.arraycopy(statusCodeBytes, 0, frameBytes, 2, 2); // Copy the status code bytes
+        System.arraycopy(reasonBytes, 0, frameBytes, 4, reasonBytes.length); // Copy the reason bytes
+
+        return frameBytes;
+    }
+
     /**
      * Creates header bytes
+     *
      * @param payloadLength length of payload
      * @return byte array of header
      */
@@ -138,24 +182,46 @@ public abstract class WebSocket extends Page {
 
     /**
      * Callback for new messages from client
-     * @param ctx connection context
+     *
+     * @param ctx   connection context
      * @param frame received dataframe
      */
-    public abstract void onMessage(Context ctx, DataFrame frame);
+    public void onMessage(Context ctx, DataFrame frame) {
+        try {
+            connections.get(ctx).dataFrames.put(frame);
+        } catch (InterruptedException e) {
+            System.out.println("Cannot save dataframe");
+        }
+    }
 
     /**
      * Callback for closing connection
+     *
      * @param ctx connection context
      */
     public void onClose(Context ctx) {
-        // Do nothing
+        connections.get(ctx).opened = false;
+        connections.remove(ctx);
     }
 
     /**
      * Callback for opening connection
+     *
      * @param ctx connection context
      */
     public void onOpen(Context ctx) {
-        // Do nothing
+        WebSocketConnection connection = new WebSocketConnection(this, ctx);
+        connection.opened = true;
+        connections.put(ctx, connection);
+        onOpen(connection);
+    }
+
+    /**
+     * Callback for connection version
+     *
+     * @param connection WebSocket connection to client
+     */
+    public void onOpen(WebSocketConnection connection) {
+        //Do nothing
     }
 }

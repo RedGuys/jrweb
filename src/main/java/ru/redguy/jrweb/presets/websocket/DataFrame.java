@@ -1,4 +1,4 @@
-package ru.redguy.jrweb.utils;
+package ru.redguy.jrweb.presets.websocket;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
