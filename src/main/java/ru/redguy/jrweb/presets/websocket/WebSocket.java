@@ -60,13 +60,13 @@ public class WebSocket extends Page {
             onOpen(context);
 
             while (true) {
-                if (context.socket.isClosed()) {
+                if (!context.socket.isOpen()) {
                     onClose(context);
                     return;
                 }
                 DataFrame frame = null;
                 try {
-                    frame = DataFrame.parseDataFrame(context.socket.getInputStream());
+                    frame = DataFrame.parseDataFrame(context.reader);
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -91,22 +91,22 @@ public class WebSocket extends Page {
      *
      * @param context connection context
      * @param text    data to send
-     * @throws IOException throws if connection broken
+     * @throws Exception throws if connection broken
      */
-    public static void send(@NotNull Context context, @NotNull String text) throws IOException {
+    public static void send(@NotNull Context context, @NotNull String text) throws Exception {
         context.outputStream.write(createHeaderBytes(text.getBytes(StandardCharsets.UTF_8).length));
         context.outputStream.write(text.getBytes(StandardCharsets.UTF_8));
     }
 
-    public static void close(@NotNull Context context) throws IOException {
+    public static void close(@NotNull Context context) throws Exception {
         close(context, 1000);
     }
 
-    public static void close(@NotNull Context context, int statusCode) throws IOException {
+    public static void close(@NotNull Context context, int statusCode) throws Exception {
         close(context, statusCode, "");
     }
 
-    public static void close(@NotNull Context context, int statusCode, String reason) throws IOException {
+    public static void close(@NotNull Context context, int statusCode, String reason) throws Exception {
         try {
             context.outputStream.write(createClosePacket(statusCode, reason));
         } finally {

@@ -16,9 +16,14 @@ public class Cookie {
      */
     @Contract(pure = true)
     public Cookie(@NotNull String cookie) {
-        String[] split = cookie.split("=");
-        name = split[0].trim();
-        value = split[1];
+        if (cookie.contains("=")) {
+            String[] split = cookie.split("=");
+            name = split[0].trim();
+            value = split[1];
+        } else {
+            name = cookie;
+            value = "";
+        }
     }
 
     /**

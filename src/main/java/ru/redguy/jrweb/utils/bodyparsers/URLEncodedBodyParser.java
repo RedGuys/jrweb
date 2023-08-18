@@ -6,6 +6,7 @@ import ru.redguy.jrweb.Context;
 import java.io.IOException;
 import java.net.URLDecoder;
 import java.util.HashMap;
+import java.util.concurrent.ExecutionException;
 
 public class URLEncodedBodyParser extends BodyParser {
 
@@ -16,12 +17,7 @@ public class URLEncodedBodyParser extends BodyParser {
     @Override
     public void parse(@NotNull Context context) {
         try {
-            StringBuilder stringBuilder = new StringBuilder();
-            while (context.reader.ready()) {
-                char c = (char) context.reader.read();
-                stringBuilder.append(c);
-            }
-            String[] params = stringBuilder.toString().split("&");
+            String[] params = context.reader.asyncReadLine().join().split("&");
             HashMap<String, Object> parameters = new HashMap<>();
             for (String param : params) {
                 String[] keyValue = param.split("=");

@@ -2,9 +2,13 @@ package ru.redguy.jrweb;
 
 import java.io.IOException;
 import java.net.ServerSocket;
+import java.net.Socket;
 import java.net.SocketException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.nio.channels.AsynchronousServerSocketChannel;
+import java.nio.channels.AsynchronousSocketChannel;
+import java.nio.channels.ServerSocketChannel;
+import java.nio.channels.SocketChannel;
+import java.util.concurrent.*;
 
 /**
  * Server socket thread.
@@ -12,11 +16,11 @@ import java.util.concurrent.Executors;
  */
 public class ServerSocketThread extends Thread {
     private final WebServer webServer;
-    private final ServerSocket socket;
+    private final ServerSocketChannel socket;
     private final ExecutorService executorService = Executors.newCachedThreadPool();
     public boolean closing = false;
 
-    public ServerSocketThread(WebServer webServer, ServerSocket socket) {
+    public ServerSocketThread(WebServer webServer, ServerSocketChannel socket) {
         this.webServer = webServer;
         this.socket = socket;
         this.setName("ServerSocketThread");
@@ -29,11 +33,14 @@ public class ServerSocketThread extends Thread {
     public void run() {
         while (!closing) {
             try {
-                executorService.submit(new ClientSocketThread(webServer,socket.accept()));
-            } catch (SocketException e) {
-                break;
+                SocketChannel a = socket.accept();
+                ClientSocketThread clientSocketThread = new ClientSocketThread(webServer, a);
+                executorService.submit(clientSocketThread);
+            } catch (SocketException | ExecutionException ignored) {
             } catch (IOException e) {
                 System.out.println(e);
+            } catch (InterruptedException e) {
+                break;
             }
         }
     }

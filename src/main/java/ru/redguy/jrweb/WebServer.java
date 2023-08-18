@@ -6,7 +6,11 @@ import ru.redguy.jrweb.utils.bodyparsers.BodyParser;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
+import java.net.InetSocketAddress;
 import java.net.ServerSocket;
+import java.net.SocketAddress;
+import java.nio.channels.AsynchronousServerSocketChannel;
+import java.nio.channels.ServerSocketChannel;
 
 /**
  * Web server class.
@@ -68,7 +72,9 @@ public class WebServer {
     public boolean start(int port) throws IOException, SecurityException, IllegalArgumentException {
         if (started) return false;
         checkOptions();
-        socket = new ServerSocketThread(this, new ServerSocket(port, options.getSocketBacklog()));
+        ServerSocketChannel channel = ServerSocketChannel.open();
+        channel.bind(new InetSocketAddress(port), options.getSocketBacklog());
+        socket = new ServerSocketThread(this, channel);
         socket.start();
         started = true;
         return true;

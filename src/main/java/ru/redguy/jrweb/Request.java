@@ -4,6 +4,7 @@ import ru.redguy.jrweb.utils.*;
 
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.concurrent.ExecutionException;
 
 public class Request {
      /**
@@ -41,7 +42,6 @@ public class Request {
 
     /**
      * Parses request. Internal method.
-     * @throws IOException if an I/O error occurs.
      */
     protected void parseRequest() throws IOException {
         String line = context.reader.readLine();

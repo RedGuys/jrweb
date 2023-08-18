@@ -25,19 +25,19 @@ public class WebSocketConnection {
         return dataFrames.take();
     }
 
-    public void write(String data) throws IOException {
+    public void write(String data) throws Exception {
         WebSocket.send(context, data);
     }
 
-    public void close() throws IOException {
+    public void close() throws Exception {
         WebSocket.close(context);
     }
 
-    public void close(int statusCode) throws IOException {
+    public void close(int statusCode) throws Exception {
         WebSocket.close(context, statusCode);
     }
 
-    public void close(int statusCode, String reason) throws IOException {
+    public void close(int statusCode, String reason) throws Exception {
         WebSocket.close(context, statusCode, reason);
     }
 }

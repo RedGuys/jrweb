@@ -1,12 +1,12 @@
 package ru.redguy.jrweb;
 
 import org.jetbrains.annotations.NotNull;
+import ru.redguy.jrweb.utils.AsynchronousSocketReader;
 import ru.redguy.jrweb.utils.DataOutputStream;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.Socket;
+import java.nio.channels.AsynchronousSocketChannel;
+import java.nio.channels.SocketChannel;
 
 /**
  * Client socket thread.
@@ -15,15 +15,15 @@ import java.net.Socket;
 public class ClientSocketThread implements Runnable {
 
     private final WebServer webServer;
-    private final Socket socket;
-    private final BufferedReader bufferedReader;
+    private final AsynchronousSocketChannel socket;
+    private final AsynchronousSocketReader bufferedReader;
     private final DataOutputStream outputStream;
 
-    public ClientSocketThread(WebServer webServer, @NotNull Socket socket) throws IOException {
+    public ClientSocketThread(WebServer webServer, @NotNull SocketChannel socket) throws IOException {
         this.webServer = webServer;
         this.socket = socket;
-        bufferedReader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-        outputStream = new DataOutputStream(socket.getOutputStream());
+        bufferedReader = new AsynchronousSocketReader(socket);
+        outputStream = new DataOutputStream(socket);
     }
 
     @Override
@@ -34,9 +34,11 @@ public class ClientSocketThread implements Runnable {
             webServer.processRequest(context);
             if(!context.response.isHeadersSent())
                 context.response.flushHeaders();
-            outputStream.flush();
+            context.outputStream.waitLock();
+            //socket.shutdownInput();
+            socket.shutdownOutput();
             socket.close();
-        } catch (IOException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }

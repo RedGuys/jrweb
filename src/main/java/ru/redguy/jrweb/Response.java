@@ -44,7 +44,7 @@ public class Response {
                 context.outputStream.write("\r\n");
             }
             return true;
-        } catch (IOException e) {
+        } catch (Exception e) {
             return false;
         }
     }
@@ -64,15 +64,12 @@ public class Response {
                 context.outputStream.write(Integer.toHexString(bytes.length));
                 context.outputStream.write("\r\n");
             }
-            context.outputStream.flush();
             context.outputStream.write(bytes);
-            context.outputStream.flush();
             if (context.server.getOptions().isEnableChunkedTransfer()) {
                 context.outputStream.write("\r\n");
-                context.outputStream.flush();
             }
             return true;
-        } catch (IOException e) {
+        } catch (Exception e) {
             return false;
         }
     }
@@ -85,8 +82,7 @@ public class Response {
             if (context.server.getOptions().isEnableChunkedTransfer()) {
                 context.outputStream.write("0\r\n\r\n");
             }
-            context.outputStream.flush();
-        } catch (IOException e) {
+        } catch (Exception e) {
             return;
         }
     }
@@ -104,9 +100,8 @@ public class Response {
             context.outputStream.write(headers.generate());
             context.outputStream.write("\r\n");
             context.outputStream.write("\r\n"); //indicating the end of the header section
-            context.outputStream.flush();
             headersSent = true;
-        } catch (IOException e) {
+        } catch (Exception e) {
             return;
         }
     }

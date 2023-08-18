@@ -2,10 +2,12 @@ package ru.redguy.jrweb.presets.websocket;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import ru.redguy.jrweb.utils.AsynchronousSocketReader;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
+import java.nio.channels.AsynchronousSocketChannel;
 import java.nio.charset.StandardCharsets;
 
 public class DataFrame {
@@ -24,9 +26,8 @@ public class DataFrame {
     private final byte[] payload;
     private final PacketType type;
 
-    public static @Nullable DataFrame parseDataFrame(@NotNull InputStream input) throws IOException {
-        byte[] header = new byte[2];
-        if(input.read(header)==-1) return null;
+    public static @Nullable DataFrame parseDataFrame(@NotNull AsynchronousSocketReader input) throws Exception {
+        byte[] header = input.asyncReadBytes(2).get().array();
 
         PacketType type;
         int opcode = header[0] & 0x0F;
@@ -50,40 +51,30 @@ public class DataFrame {
         int payloadLength = header[1] & 0x7F;
         boolean masked = (header[1] & MASK_BIT) != 0;
         if (payloadLength == PAYLOAD_LENGTH_16_BIT) {
-            byte[] lengthBytes = new byte[2];
-            input.read(lengthBytes);
-            payloadLength = ByteBuffer.wrap(lengthBytes).getShort() & 0xFFFF;
+            ByteBuffer length = input.readBytes(2);
+            payloadLength = length.getShort() & 0xFFFF;
         } else if (payloadLength == PAYLOAD_LENGTH_64_BIT) {
-            byte[] lengthBytes = new byte[8];
-            input.read(lengthBytes);
-            payloadLength = (int) ByteBuffer.wrap(lengthBytes).getLong();
+            ByteBuffer length = input.readBytes(2);
+            payloadLength = (int) length.getLong();
         }
 
-        byte[] mask = null;
+        ByteBuffer mask = null;
         if (masked) {
-            mask = new byte[4];
-            input.read(mask);
+            mask = input.readBytes(4);
         }
 
-        byte[] payload = new byte[payloadLength];
-        //read payload fully
-        int read = 0;
-        while (read < payloadLength) {
-            int r = input.read(payload, read, payloadLength - read);
-            if(r == 0) break;
-            if (r == -1) {
-                throw new IOException("Unexpected end of stream");
-            }
-            read += r;
-        }
+        ByteBuffer payload = input.readBytes(payloadLength);
 
+        // mask
+        byte[] bytePayload = payload.array();
+        byte[] byteMask = mask != null ? mask.array() : new byte[4];
         if (masked) {
-            for (int i = 0; i < payload.length; i++) {
-                payload[i] = (byte) (payload[i] ^ mask[i % 4]);
+            for (int i = 0; i < bytePayload.length; i++) {
+                bytePayload[i] = (byte) (bytePayload[i] ^ byteMask[i % 4]);
             }
         }
 
-        return new DataFrame(type, payload);
+        return new DataFrame(type, bytePayload);
     }
 
     private DataFrame(PacketType type, byte[] payload) {

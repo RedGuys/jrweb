@@ -1,25 +1,25 @@
 package ru.redguy.jrweb;
 
 import org.jetbrains.annotations.NotNull;
+import ru.redguy.jrweb.utils.AsynchronousSocketReader;
 import ru.redguy.jrweb.utils.DataOutputStream;
 import ru.redguy.jrweb.utils.Session;
 import ru.redguy.jrweb.utils.StatusCodes;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.net.Socket;
+import java.nio.channels.AsynchronousSocketChannel;
 
 public class Context {
     public final WebServer server;
-    public final Socket socket;
-    public final BufferedReader reader;
+    public final AsynchronousSocketChannel socket;
+    public final AsynchronousSocketReader reader;
     public final DataOutputStream outputStream;
     public final Request request;
     public final Response response;
     public final Cookies cookies = new Cookies(this);
     public Session session;
 
-    public Context(WebServer server, Socket socket, BufferedReader reader, DataOutputStream outputStream) throws IOException {
+    public Context(WebServer server, AsynchronousSocketChannel socket, AsynchronousSocketReader reader, DataOutputStream outputStream) throws IOException {
         this.server = server;
         this.socket = socket;
         this.reader = reader;
