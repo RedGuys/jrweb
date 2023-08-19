@@ -16,11 +16,11 @@ import java.util.concurrent.*;
  */
 public class ServerSocketThread extends Thread {
     private final WebServer webServer;
-    private final ServerSocketChannel socket;
+    private final AsynchronousServerSocketChannel socket;
     private final ExecutorService executorService = Executors.newCachedThreadPool();
     public boolean closing = false;
 
-    public ServerSocketThread(WebServer webServer, ServerSocketChannel socket) {
+    public ServerSocketThread(WebServer webServer, AsynchronousServerSocketChannel socket) {
         this.webServer = webServer;
         this.socket = socket;
         this.setName("ServerSocketThread");
@@ -33,7 +33,7 @@ public class ServerSocketThread extends Thread {
     public void run() {
         while (!closing) {
             try {
-                SocketChannel a = socket.accept();
+                AsynchronousSocketChannel a = socket.accept().get();
                 ClientSocketThread clientSocketThread = new ClientSocketThread(webServer, a);
                 executorService.submit(clientSocketThread);
             } catch (SocketException | ExecutionException ignored) {

@@ -9,10 +9,10 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
 public class AsynchronousSocketReader {
-    private final SocketChannel socketChannel;
+    private final AsynchronousSocketChannel socketChannel;
     private final ByteBuffer readBuffer;
 
-    public AsynchronousSocketReader(SocketChannel socketChannel) {
+    public AsynchronousSocketReader(AsynchronousSocketChannel socketChannel) {
         this.socketChannel = socketChannel;
         this.readBuffer = ByteBuffer.allocate(1); // Adjust the buffer size as needed
     }
@@ -40,6 +40,23 @@ public class AsynchronousSocketReader {
             readBuffer.clear();
         }
         return ""; // No complete line found
+    }
+
+    public String readString(int length) {
+        StringBuilder line = new StringBuilder();
+        while (line.length() < length) {
+            try {
+                if (socketChannel.read(readBuffer).get() == -1) break;
+            } catch (InterruptedException | ExecutionException e) {
+            }
+            readBuffer.flip();
+            while (readBuffer.hasRemaining()) {
+                char c = (char) readBuffer.get();
+                line.append(c);
+            }
+            readBuffer.clear();
+        }
+        return line.toString();
     }
 
     public CompletableFuture<String> asyncReadLine() {

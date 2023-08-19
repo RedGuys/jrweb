@@ -19,7 +19,7 @@ public class ClientSocketThread implements Runnable {
     private final AsynchronousSocketReader bufferedReader;
     private final DataOutputStream outputStream;
 
-    public ClientSocketThread(WebServer webServer, @NotNull SocketChannel socket) throws IOException {
+    public ClientSocketThread(WebServer webServer, @NotNull AsynchronousSocketChannel socket) throws IOException {
         this.webServer = webServer;
         this.socket = socket;
         bufferedReader = new AsynchronousSocketReader(socket);

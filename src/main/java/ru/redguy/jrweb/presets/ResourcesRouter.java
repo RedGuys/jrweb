@@ -38,14 +38,14 @@ public class ResourcesRouter extends Router {
             context.response.setStatusCode(StatusCodes.OK);
             try {
                 byte[] bytes = readAllBytes(is);
-                context.response.getHeaders().add(Headers.Response.CONTENT_LENGTH, String.valueOf(bytes.length));
+                context.response.getHeaders().add(Headers.Common.CONTENT_LENGTH, String.valueOf(bytes.length));
                 context.response.send(bytes);
             } catch (SecurityException e) {
                 context.response.setStatusCode(StatusCodes.FORBIDDEN);
                 context.response.send("Forbidden");
             } catch (IOException e) {
                 context.response.setStatusCode(StatusCodes.INTERNAL_SERVER_ERROR);
-                context.response.getHeaders().remove(Headers.Response.CONTENT_LENGTH);
+                context.response.getHeaders().remove(Headers.Common.CONTENT_LENGTH);
                 context.response.send("Internal Server Error");
             }
         } else {

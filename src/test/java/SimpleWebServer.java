@@ -61,7 +61,7 @@ public class SimpleWebServer {
                 context.response.setStatusCode(StatusCodes.OK);
                 InputStream is = SimpleWebServer.class.getResourceAsStream("rick.webp");
                 byte[] bytes = readAllBytes(is);
-                context.response.getHeaders().add(Headers.Response.CONTENT_LENGTH, String.valueOf(bytes.length));
+                context.response.getHeaders().add(Headers.Common.CONTENT_LENGTH, String.valueOf(bytes.length));
                 context.response.getHeaders().add(Headers.Common.CONTENT_TYPE, "image/webp");
                 context.response.send(bytes);
             }

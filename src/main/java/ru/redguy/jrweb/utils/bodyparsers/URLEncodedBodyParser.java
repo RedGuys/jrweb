@@ -2,6 +2,7 @@ package ru.redguy.jrweb.utils.bodyparsers;
 
 import org.jetbrains.annotations.NotNull;
 import ru.redguy.jrweb.Context;
+import ru.redguy.jrweb.utils.Headers;
 
 import java.io.IOException;
 import java.net.URLDecoder;
@@ -17,7 +18,9 @@ public class URLEncodedBodyParser extends BodyParser {
     @Override
     public void parse(@NotNull Context context) {
         try {
-            String[] params = context.reader.asyncReadLine().join().split("&");
+            if(!context.request.headers.has(Headers.Common.CONTENT_LENGTH))
+                return;
+            String[] params = context.reader.readString(Integer.parseInt(context.request.headers.getFirst(Headers.Common.CONTENT_LENGTH).getValue())).split("&");
             HashMap<String, Object> parameters = new HashMap<>();
             for (String param : params) {
                 String[] keyValue = param.split("=");

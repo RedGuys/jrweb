@@ -10,6 +10,7 @@ import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.SocketAddress;
 import java.nio.channels.AsynchronousServerSocketChannel;
+import java.nio.channels.AsynchronousSocketChannel;
 import java.nio.channels.ServerSocketChannel;
 
 /**
@@ -72,7 +73,7 @@ public class WebServer {
     public boolean start(int port) throws IOException, SecurityException, IllegalArgumentException {
         if (started) return false;
         checkOptions();
-        ServerSocketChannel channel = ServerSocketChannel.open();
+        AsynchronousServerSocketChannel channel = AsynchronousServerSocketChannel.open();
         channel.bind(new InetSocketAddress(port), options.getSocketBacklog());
         socket = new ServerSocketThread(this, channel);
         socket.start();

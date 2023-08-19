@@ -47,7 +47,7 @@ public class FileRouter extends Router {
         } else {
             if(filePath.canRead()) {
                 context.response.setStatusCode(StatusCodes.OK);
-                context.response.getHeaders().add(Headers.Response.CONTENT_LENGTH, String.valueOf(filePath.length()));
+                context.response.getHeaders().add(Headers.Common.CONTENT_LENGTH, String.valueOf(filePath.length()));
                 try {
                     context.response.send(Files.readAllBytes(filePath.toPath()));
                 } catch (SecurityException e) {
@@ -55,7 +55,7 @@ public class FileRouter extends Router {
                     context.response.send("Forbidden");
                 } catch (IOException e) {
                     context.response.setStatusCode(StatusCodes.INTERNAL_SERVER_ERROR);
-                    context.response.getHeaders().remove(Headers.Response.CONTENT_LENGTH);
+                    context.response.getHeaders().remove(Headers.Common.CONTENT_LENGTH);
                     context.response.send("Internal Server Error");
                 }
             } else {
