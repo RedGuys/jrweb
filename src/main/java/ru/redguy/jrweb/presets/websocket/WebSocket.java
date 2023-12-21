@@ -188,7 +188,7 @@ public class WebSocket extends Page {
      */
     public void onMessage(Context ctx, DataFrame frame) {
         try {
-            connections.get(ctx).dataFrames.put(frame);
+            if (connections.containsKey(ctx)) connections.get(ctx).dataFrames.put(frame);
         } catch (InterruptedException e) {
             System.out.println("Cannot save dataframe");
         }
@@ -200,7 +200,7 @@ public class WebSocket extends Page {
      * @param ctx connection context
      */
     public void onClose(Context ctx) {
-        connections.get(ctx).opened = false;
+        if (connections.containsKey(ctx)) connections.get(ctx).opened = false;
         connections.remove(ctx);
     }
 

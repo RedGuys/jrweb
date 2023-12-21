@@ -9,6 +9,7 @@ import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.nio.channels.AsynchronousSocketChannel;
 import java.nio.charset.StandardCharsets;
+import java.util.concurrent.ExecutionException;
 
 public class DataFrame {
 
@@ -27,7 +28,12 @@ public class DataFrame {
     private final PacketType type;
 
     public static @Nullable DataFrame parseDataFrame(@NotNull AsynchronousSocketReader input) throws Exception {
-        byte[] header = input.asyncReadBytes(2).get().array();
+        byte[] header;
+        try {
+            header = input.asyncReadBytes(2).get().array();
+        } catch (ExecutionException e) {
+            return null;
+        }
 
         PacketType type;
         int opcode = header[0] & 0x0F;
