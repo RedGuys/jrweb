@@ -81,6 +81,8 @@ public class WebSocket extends Page {
                     case BINARY:
                         onMessage(context, frame);
                         break;
+                    default:
+                        break;
                 }
             }
         }

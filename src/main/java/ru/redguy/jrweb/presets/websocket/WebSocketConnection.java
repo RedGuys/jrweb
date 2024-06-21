@@ -40,4 +40,8 @@ public class WebSocketConnection {
     public void close(int statusCode, String reason) throws Exception {
         WebSocket.close(context, statusCode, reason);
     }
+
+    public WebSocket getServer() {
+        return server;
+    }
 }

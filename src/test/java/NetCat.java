@@ -2,7 +2,6 @@ import java.io.*;
 import java.net.*;
 
 public class NetCat {
-    private static final int BUFFER_SIZE = 1024;
 
     public static void main(String[] args) {
         if (args.length != 2) {

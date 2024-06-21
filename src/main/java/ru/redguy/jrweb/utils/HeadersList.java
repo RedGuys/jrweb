@@ -102,7 +102,7 @@ public class HeadersList {
      * @return array of {@link HeaderValue}
      */
     public HeaderValue[] get(Header header) {
-        return headers.stream().filter(hv -> Objects.equals(hv.getHeader().getName().toLowerCase(), header.getName().toLowerCase())).toArray(HeaderValue[]::new);
+        return headers.stream().filter(hv -> hv.getHeader().getName().equalsIgnoreCase(header.getName().toLowerCase())).toArray(HeaderValue[]::new);
     }
 
     /**
@@ -111,7 +111,7 @@ public class HeadersList {
      * @return {@link HeaderValue}
      */
     public HeaderValue getFirst(Header header) {
-        return headers.stream().filter(hv -> Objects.equals(hv.getHeader().getName().toLowerCase(), header.getName().toLowerCase())).findFirst().orElse(null);
+        return headers.stream().filter(hv -> hv.getHeader().getName().equalsIgnoreCase(header.getName().toLowerCase())).findFirst().orElse(null);
     }
 
     /**
@@ -146,7 +146,7 @@ public class HeadersList {
      * @return true if header found
      */
     public boolean has(Header header) {
-        return headers.stream().anyMatch(hv -> Objects.equals(hv.getHeader().getName().toLowerCase(), header.getName().toLowerCase()));
+        return headers.stream().anyMatch(hv -> hv.getHeader().getName().equalsIgnoreCase(header.getName().toLowerCase()));
     }
 
     @Override
