@@ -1,13 +1,13 @@
 package ru.redguy.jrweb;
 
 import ru.redguy.jrweb.utils.*;
+import ru.redguy.jrweb.utils.bodyparsers.BodyParser;
 
 import java.io.IOException;
 import java.util.HashMap;
-import java.util.concurrent.ExecutionException;
 
 public class Request {
-     /**
+    /**
      * Context of request.
      */
     public Context context;
@@ -32,9 +32,9 @@ public class Request {
      */
     public HeadersList headers = new HeadersList();
     /**
-     * Params of request. Automatically parsed from body depending on {@link Headers.Common#CONTENT_TYPE}
+     * Body of request.
      */
-    public HashMap<String, Object> params = new HashMap<>();
+    public Body body;
 
     public Request(Context context) {
         this.context = context;
@@ -75,5 +75,10 @@ public class Request {
 
         if (context.server.getOptions().isEnableSessionStorage())
             context.session = context.server.getSessionStorage().get(context);
+
+        if(method.hasBody()) {
+            body = BodyParser.parse(context);
+            body.parse();
+        }
     }
 }

@@ -29,9 +29,6 @@ public abstract class Page {
      */
     public void processRequest(String path, @NotNull Context context) throws Exception {
         if (regex.matcher(path).matches() && (method == null || method.equals(context.request.method))) {
-            if (context.request.headers.has(Headers.Common.CONTENT_TYPE) && BodyParser.bodyParsers.containsKey(context.request.headers.getFirst(Headers.Common.CONTENT_TYPE).getValue())) {
-                BodyParser.bodyParsers.get(context.request.headers.getFirst(Headers.Common.CONTENT_TYPE).getValue()).parse(context);
-            }
             run(context);
             context.processed = true;
         }

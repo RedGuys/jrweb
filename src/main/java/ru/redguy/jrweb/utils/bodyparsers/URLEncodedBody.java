@@ -1,22 +1,23 @@
 package ru.redguy.jrweb.utils.bodyparsers;
 
-import org.jetbrains.annotations.NotNull;
 import ru.redguy.jrweb.Context;
+import ru.redguy.jrweb.Body;
 import ru.redguy.jrweb.utils.Headers;
 
 import java.io.IOException;
 import java.net.URLDecoder;
 import java.util.HashMap;
-import java.util.concurrent.ExecutionException;
 
-public class URLEncodedBodyParser extends BodyParser {
+public class URLEncodedBody extends Body {
 
-    public URLEncodedBodyParser() {
-        super("application/x-www-form-urlencoded");
+    public HashMap<String, Object> parameters = new HashMap<>();
+
+    public URLEncodedBody(Context context) {
+        super(context);
     }
 
     @Override
-    public void parse(@NotNull Context context) {
+    protected void parse() {
         try {
             if(!context.request.headers.has(Headers.Common.CONTENT_LENGTH))
                 return;
@@ -30,7 +31,7 @@ public class URLEncodedBodyParser extends BodyParser {
                     parameters.put(URLDecoder.decode(keyValue[0], "UTF-8"), "");
 
             }
-            context.request.params = parameters;
+            this.parameters = parameters;
         } catch (IOException e) {
             e.printStackTrace();
         }

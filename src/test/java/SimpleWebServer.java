@@ -8,6 +8,8 @@ import ru.redguy.jrweb.presets.websocket.DataFrame;
 import ru.redguy.jrweb.presets.websocket.WebSocket;
 import ru.redguy.jrweb.presets.websocket.WebSocketConnection;
 import ru.redguy.jrweb.utils.*;
+import ru.redguy.jrweb.utils.bodyparsers.BytesBody;
+import ru.redguy.jrweb.utils.bodyparsers.URLEncodedBody;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -147,7 +149,16 @@ public class SimpleWebServer {
         server.addPage(new Page(Methods.POST,"/body") {
             @Override
             public void run(Context context) throws Exception {
-                context.response.send(context.request.params.keySet().toString());
+                if(context.request.body instanceof BytesBody) {
+                    if(context.request.headers.has(Headers.Common.CONTENT_TYPE)) {
+                        context.response.getHeaders().add(Headers.Common.CONTENT_TYPE, context.request.headers.getFirst(Headers.Common.CONTENT_TYPE).getValue());
+                    }
+                    BytesBody body = (BytesBody) context.request.body;
+                    context.response.send(body.bytes);
+                } else if(context.request.body instanceof URLEncodedBody) {
+                    URLEncodedBody body = (URLEncodedBody) context.request.body;
+                    context.response.send(body.parameters.keySet().toString());
+                }
             }
         });
     }

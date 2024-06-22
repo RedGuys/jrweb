@@ -2,16 +2,11 @@ package ru.redguy.jrweb;
 
 import org.jetbrains.annotations.NotNull;
 import ru.redguy.jrweb.utils.*;
-import ru.redguy.jrweb.utils.bodyparsers.BodyParser;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.net.InetSocketAddress;
-import java.net.ServerSocket;
-import java.net.SocketAddress;
 import java.nio.channels.AsynchronousServerSocketChannel;
-import java.nio.channels.AsynchronousSocketChannel;
-import java.nio.channels.ServerSocketChannel;
 
 /**
  * Web server class.
@@ -19,11 +14,6 @@ import java.nio.channels.ServerSocketChannel;
  * @author RedGuy
  */
 public class WebServer {
-
-    static {
-        BodyParser.init();
-    }
-
     private ServerSocketThread socket;
     private final WebServerOptions options;
     private boolean started = false;

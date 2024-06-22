@@ -59,6 +59,24 @@ public class AsynchronousSocketReader {
         return line.toString();
     }
 
+    public ByteBuffer readAllBytes() throws IOException {
+        ByteBuffer byteBuffer = ByteBuffer.allocate(1024);
+        ByteBuffer result = ByteBuffer.allocate(1024);
+        while (true) {
+            try {
+                if (socketChannel.read(byteBuffer).get() == -1) break;
+            } catch (InterruptedException | ExecutionException e) {
+            }
+            byteBuffer.flip();
+            while (byteBuffer.hasRemaining()) {
+                result.put(byteBuffer.get());
+            }
+            byteBuffer.clear();
+        }
+        result.flip();
+        return result;
+    }
+
     public CompletableFuture<String> asyncReadLine() {
         CompletableFuture<String> future = new CompletableFuture<>();
         readLineAsync(future, new StringBuilder());
