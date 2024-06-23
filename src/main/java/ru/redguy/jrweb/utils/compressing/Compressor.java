@@ -1,4 +1,4 @@
-package ru.redguy.jrweb.utils;
+package ru.redguy.jrweb.utils.compressing;
 
 import java.io.IOException;
 

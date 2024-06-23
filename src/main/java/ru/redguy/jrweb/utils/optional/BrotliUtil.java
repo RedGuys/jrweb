@@ -1,4 +1,4 @@
-package ru.redguy.jrweb.utils;
+package ru.redguy.jrweb.utils.optional;
 
 import com.aayushatharva.brotli4j.Brotli4jLoader;
 import com.aayushatharva.brotli4j.decoder.BrotliInputStream;

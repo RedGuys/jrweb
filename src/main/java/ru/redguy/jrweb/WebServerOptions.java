@@ -1,9 +1,9 @@
 package ru.redguy.jrweb;
 
-import ru.redguy.jrweb.utils.Brotli;
-import ru.redguy.jrweb.utils.Compressor;
-import ru.redguy.jrweb.utils.Deflate;
-import ru.redguy.jrweb.utils.Gzip;
+import ru.redguy.jrweb.utils.compressing.Brotli;
+import ru.redguy.jrweb.utils.compressing.Compressor;
+import ru.redguy.jrweb.utils.compressing.Deflate;
+import ru.redguy.jrweb.utils.compressing.Gzip;
 
 /**
  * Web server options.

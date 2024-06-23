@@ -7,7 +7,7 @@ plugins {
 }
 
 group 'ru.redguy'
-version '2.0.2'
+version '2.0.3'
 
 def brotliVersion = "1.11.0"
 def operatingSystem = DefaultNativePlatform.getCurrentOperatingSystem()
@@ -20,10 +20,14 @@ java {
     registerFeature('brotliSupport') {
         usingSourceSet(sourceSets.main)
     }
+    registerFeature('jsonSupport') {
+        usingSourceSet(sourceSets.main)
+    }
 }
 
 dependencies {
     implementation 'org.jetbrains:annotations:20.1.0'
+    jsonSupportImplementation 'com.google.code.gson:gson:2.11.0'
     brotliSupportImplementation "com.aayushatharva.brotli4j:brotli4j:$brotliVersion"
     brotliSupportRuntimeOnly("""com.aayushatharva.brotli4j:native-${
         if (operatingSystem.isWindows()) "windows-x86_64"

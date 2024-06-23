@@ -2,6 +2,8 @@ package ru.redguy.jrweb;
 
 import org.jetbrains.annotations.NotNull;
 import ru.redguy.jrweb.utils.*;
+import ru.redguy.jrweb.utils.compressing.Brotli;
+import ru.redguy.jrweb.utils.optional.BrotliUtil;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;

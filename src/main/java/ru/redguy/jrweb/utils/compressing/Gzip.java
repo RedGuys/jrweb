@@ -1,8 +1,10 @@
-package ru.redguy.jrweb.utils;
+package ru.redguy.jrweb.utils.compressing;
+
+import ru.redguy.jrweb.utils.GzipUtil;
 
 import java.io.IOException;
 
-public class Gzip implements Compressor{
+public class Gzip implements Compressor {
 
     @Override
     public byte[] compress(byte[] data) throws IOException {

@@ -7,6 +7,8 @@ import java.nio.channels.CompletionHandler;
 import java.nio.channels.SocketChannel;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 public class AsynchronousSocketReader {
     private final AsynchronousSocketChannel socketChannel;
@@ -64,8 +66,10 @@ public class AsynchronousSocketReader {
         ByteBuffer result = ByteBuffer.allocate(1024);
         while (true) {
             try {
-                if (socketChannel.read(byteBuffer).get() == -1) break;
+                if (socketChannel.read(byteBuffer).get(1, TimeUnit.SECONDS) == -1) break;
             } catch (InterruptedException | ExecutionException e) {
+            } catch (TimeoutException e) {
+                break;
             }
             byteBuffer.flip();
             while (byteBuffer.hasRemaining()) {
@@ -75,6 +79,10 @@ public class AsynchronousSocketReader {
         }
         result.flip();
         return result;
+    }
+
+    public String readString() throws IOException {
+        return new String(readAllBytes().array());
     }
 
     public CompletableFuture<String> asyncReadLine() {

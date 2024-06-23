@@ -1,4 +1,6 @@
-package ru.redguy.jrweb.utils;
+package ru.redguy.jrweb.utils.compressing;
+
+import ru.redguy.jrweb.utils.optional.BrotliUtil;
 
 import java.io.IOException;
 

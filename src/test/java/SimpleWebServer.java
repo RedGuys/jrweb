@@ -9,6 +9,7 @@ import ru.redguy.jrweb.presets.websocket.WebSocket;
 import ru.redguy.jrweb.presets.websocket.WebSocketConnection;
 import ru.redguy.jrweb.utils.*;
 import ru.redguy.jrweb.utils.bodyparsers.BytesBody;
+import ru.redguy.jrweb.utils.bodyparsers.JsonBody;
 import ru.redguy.jrweb.utils.bodyparsers.URLEncodedBody;
 
 import java.io.ByteArrayOutputStream;
@@ -158,6 +159,9 @@ public class SimpleWebServer {
                 } else if(context.request.body instanceof URLEncodedBody) {
                     URLEncodedBody body = (URLEncodedBody) context.request.body;
                     context.response.send(body.parameters.keySet().toString());
+                } else if(context.request.body instanceof JsonBody) {
+                    JsonBody body = (JsonBody) context.request.body;
+                    context.response.send(body.get("string",String.class));
                 }
             }
         });
