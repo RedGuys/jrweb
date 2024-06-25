@@ -4,6 +4,7 @@ import ru.redguy.jrweb.utils.Headers;
 import ru.redguy.jrweb.utils.HeadersList;
 import ru.redguy.jrweb.utils.StatusCode;
 import ru.redguy.jrweb.utils.StatusCodes;
+import ru.redguy.jrweb.utils.optional.GsonUtil;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -22,6 +23,16 @@ public class Response {
 
     public Response(Context context) {
         this.context = context;
+    }
+
+    public boolean send(Object obj) {
+        if (context.request.headers.has(Headers.Common.CONTENT_TYPE)) {
+            String type = context.request.headers.getFirst(Headers.Common.CONTENT_TYPE).getValue();
+            if (GsonUtil.isSupported()&&type.equals("application/json")) {
+                return send(GsonUtil.getGson().toJson(obj));
+            }
+        }
+        return send(obj.toString());
     }
 
     /**
