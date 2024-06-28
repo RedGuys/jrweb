@@ -35,9 +35,9 @@ public abstract class Middleware {
     }
 
     public void processRequest(String path, MiddlewarePosition position, @NotNull Context context) throws IOException {
-        if ((regex.matcher(path).matches() || regex.toString().equals(""))
-                && (this.position == position || this.position == MiddlewarePosition.BOTH)
-                && (method == null || method.equals(context.request.method)))
+        if ((getRegex().matcher(path).matches() || getRegex().toString().equals(""))
+                && (getPosition() == position || getPosition() == MiddlewarePosition.BOTH)
+                && (getMethod() == null || getMethod().equals(context.request.method)))
             run(context);
     }
 
@@ -45,5 +45,13 @@ public abstract class Middleware {
 
     public Pattern getRegex() {
         return regex;
+    }
+
+    public MiddlewarePosition getPosition() {
+        return position;
+    }
+
+    public Method getMethod() {
+        return method;
     }
 }
