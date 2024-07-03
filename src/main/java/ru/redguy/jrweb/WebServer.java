@@ -9,6 +9,8 @@ import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.net.InetSocketAddress;
 import java.nio.channels.AsynchronousServerSocketChannel;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Web server class.
@@ -197,6 +199,14 @@ public class WebServer {
         }
 
         return router;
+    }
+
+    /**
+     * Collects all pages from root {@link Router}.
+     * @return
+     */
+    public List<Map.Entry<String,Page>> getPages() {
+        return rootRouter.getPages();
     }
 
     /**

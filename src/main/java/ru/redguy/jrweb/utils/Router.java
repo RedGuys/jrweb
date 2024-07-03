@@ -4,9 +4,7 @@ import org.jetbrains.annotations.NotNull;
 import ru.redguy.jrweb.Context;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.regex.Pattern;
 
 public class Router {
@@ -103,5 +101,18 @@ public class Router {
      */
     public void add(Router router) {
         routers.add(router);
+    }
+
+    public List<Map.Entry<String, Page>> getPages() {
+        ArrayList<Map.Entry<String, Page>> allPages = new ArrayList<>();
+        for (Page page : pages) {
+            allPages.add(new AbstractMap.SimpleEntry<>(pattern.pattern() + page.getRegex().pattern(), page));
+        }
+        for (Router router : routers) {
+            for (Map.Entry<String, Page> page : router.getPages()) {
+                allPages.add(new AbstractMap.SimpleEntry<>(pattern.pattern() + page.getKey(), page.getValue()));
+            }
+        }
+        return allPages;
     }
 }

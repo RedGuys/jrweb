@@ -16,7 +16,9 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Paths;
+import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 public class SimpleWebServer {
     public static void main(String[] args) throws IOException {
@@ -163,6 +165,13 @@ public class SimpleWebServer {
                     JsonBody body = (JsonBody) context.request.body;
                     context.response.send(body.get("string",String.class));
                 }
+            }
+        });
+
+        server.addPage(new Page(Methods.GET, "/endpoints") {
+            @Override
+            public void run(Context context) throws Exception {
+                context.response.send(server.getPages().stream().map(Map.Entry::getKey).collect(Collectors.joining(", ")));
             }
         });
     }
