@@ -45,4 +45,8 @@ public abstract class Page {
     public Pattern getRegex() {
         return regex;
     }
+
+    public Method getMethod() {
+        return method;
+    }
 }
