@@ -8,6 +8,8 @@ import ru.redguy.jrweb.utils.optional.GsonUtil;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 
 public class Response {
     /**
@@ -33,6 +35,10 @@ public class Response {
             }
         }
         return send(obj.toString());
+    }
+
+    public boolean send(Future<?> obj) throws ExecutionException, InterruptedException {
+        return send(obj.get());
     }
 
     /**
