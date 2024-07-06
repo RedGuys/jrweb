@@ -252,8 +252,9 @@ public class WebServer {
 
                     @Override
                     public void run(Context context) throws Exception {
+                        Object result = null;
                         if (method.getParameterCount() == 1) {
-                            method.invoke(object, context);
+                            result = method.invoke(object, context);
                         } else {
                             Object[] args = new Object[method.getParameterCount()];
                             args[0] = context;
@@ -293,7 +294,10 @@ public class WebServer {
                                     args[i] = null;
                                 }
                             }
-                            method.invoke(object, args);
+                            result = method.invoke(object, args);
+                        }
+                        if(result != null) {
+                            context.response.send(result);
                         }
                     }
                 };
