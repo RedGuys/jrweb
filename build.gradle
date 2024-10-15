@@ -51,7 +51,7 @@ test {
 publishing {
     repositories {
         maven {
-            url = "https://rep.redguy.org/maven/"
+            url = "https://rep.redguy.org/repo/maven/"
             credentials {
                 username = System.getenv("MVN_USER")
                 password = System.getenv("MVN_PASSWORD")
