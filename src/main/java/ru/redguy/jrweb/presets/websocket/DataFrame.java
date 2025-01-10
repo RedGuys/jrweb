@@ -17,7 +17,9 @@ public class DataFrame {
         CONTINUATION,
         TEXT,
         BINARY,
-        CLOSE
+        CLOSE,
+        PING,
+        PONG
     }
 
     private static final int MASK_BIT = 0x80;
@@ -49,6 +51,12 @@ public class DataFrame {
                 break;
             case 0x08:
                 type = PacketType.CLOSE;
+                break;
+            case 0x09:
+                type = PacketType.PING;
+                break;
+            case 0x0A:
+                type = PacketType.PONG;
                 break;
             default:
                 throw new IOException("Unexpected opcode: " + opcode);

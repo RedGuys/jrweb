@@ -9,13 +9,23 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
 import java.util.Base64;
-import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Websocket implementation.
  */
 public class WebSocket extends Page {
+    private static final int MAX_QUEUE_SIZE = 1000; // Prevent unbounded queue growth
+    private final Map<Context, WebSocketConnection> connections = new ConcurrentHashMap<>();
+    private static final long PING_INTERVAL_MS = 30000; // 30 seconds
+    private final ScheduledExecutorService pingScheduler = Executors.newSingleThreadScheduledExecutor();
+
     public WebSocket(String regex) {
         super(regex);
     }
@@ -45,46 +55,161 @@ public class WebSocket extends Page {
 
     // pesdec
 
-    private HashMap<Context, WebSocketConnection> connections = new HashMap<>();
-
     @Override
     public void run(Context context) throws Exception {
-        if (context.request.headers.has(Headers.Common.CONNECTION) && context.request.headers.getFirst(Headers.Common.CONNECTION).getValue().equalsIgnoreCase("upgrade") && context.request.headers.has(Headers.Common.UPGRADE) && context.request.headers.getFirst(Headers.Common.UPGRADE).getValue().equalsIgnoreCase("websocket")) {
-            context.response.setStatusCode(StatusCodes.SWITCHING_PROTOCOLS("websocket", "Upgrade"));
-            String key = context.request.headers.getFirst(Headers.Request.SEC_WEBSOCKET_KEY).getValue().trim();
-            key = key + "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
-            key = Base64.getEncoder().encodeToString(MessageDigest.getInstance("SHA1").digest(key.getBytes("UTF-8")));
-            context.response.getHeaders().add(Headers.Response.SEC_WEBSOCKET_ACCEPT, key);
-            context.response.flushHeaders();
+        try {
+            if (!isWebSocketUpgradeRequest(context)) {
+                return;
+            }
 
-            onOpen(context);
+            upgradeToWebSocket(context);
+            startPingScheduler();
 
             while (true) {
                 if (!context.socket.isOpen()) {
-                    onClose(context);
+                    cleanupConnection(context);
                     return;
                 }
-                DataFrame frame = null;
+
+                DataFrame frame = readNextFrame(context);
+                if (frame == null) continue;
+
+                handleFrame(context, frame);
+            }
+        } catch (Exception e) {
+            cleanupConnection(context);
+            throw e;
+        }
+    }
+
+    private boolean isWebSocketUpgradeRequest(Context context) {
+        return context.request.headers.has(Headers.Common.CONNECTION) &&
+               context.request.headers.getFirst(Headers.Common.CONNECTION).getValue().equalsIgnoreCase("upgrade") &&
+               context.request.headers.has(Headers.Common.UPGRADE) &&
+               context.request.headers.getFirst(Headers.Common.UPGRADE).getValue().equalsIgnoreCase("websocket");
+    }
+
+    private void upgradeToWebSocket(Context context) throws NoSuchAlgorithmException, IOException {
+        context.response.setStatusCode(StatusCodes.SWITCHING_PROTOCOLS("websocket", "Upgrade"));
+        String key = context.request.headers.getFirst(Headers.Request.SEC_WEBSOCKET_KEY).getValue().trim();
+        key = key + "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
+        key = Base64.getEncoder().encodeToString(MessageDigest.getInstance("SHA1").digest(key.getBytes("UTF-8")));
+        context.response.getHeaders().add(Headers.Response.SEC_WEBSOCKET_ACCEPT, key);
+        context.response.flushHeaders();
+
+        onOpen(context);
+    }
+
+    private void startPingScheduler() {
+        pingScheduler.scheduleAtFixedRate(() -> {
+            for (Map.Entry<Context, WebSocketConnection> entry : connections.entrySet()) {
                 try {
-                    frame = DataFrame.parseDataFrame(context.reader);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-                if (frame == null) {
-                    continue;
-                }
-                switch (frame.getType()) {
-                    case CLOSE:
-                        onClose(context);
-                        return;
-                    case TEXT:
-                    case BINARY:
-                        onMessage(context, frame);
-                        break;
-                    default:
-                        break;
+                    if (entry.getValue().isOpen()) {
+                        // Send ping frame
+                        entry.getKey().outputStream.write(createPingFrame());
+                    } else {
+                        cleanupConnection(entry.getKey());
+                    }
+                } catch (Exception e) {
+                    cleanupConnection(entry.getKey());
                 }
             }
+        }, PING_INTERVAL_MS, PING_INTERVAL_MS, TimeUnit.MILLISECONDS);
+    }
+
+    private DataFrame readNextFrame(Context context) {
+        try {
+            return DataFrame.parseDataFrame(context.reader);
+        } catch (Exception e) {
+            cleanupConnection(context);
+            return null;
+        }
+    }
+
+    private void handleFrame(Context context, DataFrame frame) {
+        try {
+            switch (frame.getType()) {
+                case CLOSE:
+                    cleanupConnection(context);
+                    break;
+                case PING:
+                    sendPong(context);
+                    break;
+                case TEXT:
+                case BINARY:
+                    onMessage(context, frame);
+                    break;
+                default:
+                    break;
+            }
+        } catch (Exception e) {
+            // Log error but don't throw as this is cleanup code
+            e.printStackTrace();
+        }
+    }
+
+    private void cleanupConnection(Context context) {
+        try {
+            WebSocketConnection conn = connections.remove(context);
+            if (conn != null) {
+                conn.setOpened(false);
+                onClose(context);
+            }
+        } catch (Exception e) {
+            // Log error but don't throw as this is cleanup code
+            e.printStackTrace();
+        }
+    }
+
+    private static byte[] createPingFrame() {
+        byte[] frame = new byte[2];
+        frame[0] = (byte) 0x89; // FIN bit + Ping frame
+        frame[1] = 0; // Zero payload length
+        return frame;
+    }
+
+    private void sendPong(Context context) throws Exception {
+        byte[] frame = new byte[2];
+        frame[0] = (byte) 0x8A; // FIN bit + Pong frame
+        frame[1] = 0; // Zero payload length
+        context.outputStream.write(frame);
+    }
+
+    /**
+     * Callback for new messages from client
+     *
+     * @param ctx   connection context
+     * @param frame received dataframe
+     */
+    public void onMessage(Context ctx, DataFrame frame) {
+        try {
+            WebSocketConnection conn = connections.get(ctx);
+            if (conn != null && conn.isOpen()) {
+                try {
+                    if (!conn.getDataFrames().offer(frame)) {
+                        // Queue is full, close connection to prevent memory issues
+                        cleanupConnection(ctx);
+                    }
+                } catch (Exception e) {
+                    System.out.println("Cannot save dataframe: " + e.getMessage());
+                    cleanupConnection(ctx);
+                }
+            }
+        } catch (Exception e) {
+            System.out.println("Error processing message: " + e.getMessage());
+            cleanupConnection(ctx);
+        }
+    }
+
+    @Override
+    protected void finalize() throws Throwable {
+        try {
+            pingScheduler.shutdown();
+            for (Context ctx : new ArrayList<>(connections.keySet())) {
+                cleanupConnection(ctx);
+            }
+        } finally {
+            super.finalize();
         }
     }
 
@@ -180,20 +305,6 @@ public class WebSocket extends Page {
         }
 
         return headerBytes;
-    }
-
-    /**
-     * Callback for new messages from client
-     *
-     * @param ctx   connection context
-     * @param frame received dataframe
-     */
-    public void onMessage(Context ctx, DataFrame frame) {
-        try {
-            if (connections.containsKey(ctx)) connections.get(ctx).dataFrames.put(frame);
-        } catch (InterruptedException e) {
-            System.out.println("Cannot save dataframe");
-        }
     }
 
     /**
