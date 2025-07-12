@@ -24,7 +24,7 @@ Java webserver implementation mostly without any external dependencies (only jet
 repositories {
     mavenCentral()
     maven {
-        url = "https://repo.redguy.ru/repository/maven-public/"
+        url = "https://rep.redguy.org/repo/maven/"
     }
 }
 
