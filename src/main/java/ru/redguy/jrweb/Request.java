@@ -4,6 +4,7 @@ import ru.redguy.jrweb.utils.*;
 import ru.redguy.jrweb.utils.bodyparsers.BodyParser;
 
 import java.io.IOException;
+import java.net.URLDecoder;
 import java.util.HashMap;
 
 public class Request {
@@ -55,9 +56,15 @@ public class Request {
             for (String s : query) {
                 String[] keyValue = s.split("=");
                 if (keyValue.length == 2)
-                    this.query.put(keyValue[0], keyValue[1]);
+                    this.query.put(
+                        URLDecoder.decode(keyValue[0], "UTF-8"),
+                        URLDecoder.decode(keyValue[1], "UTF-8")
+                    );
                 else
-                    this.query.put(keyValue[0], "");
+                    this.query.put(
+                            URLDecoder.decode(keyValue[0], "UTF-8"),
+                            ""
+                    );
             }
         }
 
