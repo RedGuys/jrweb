@@ -15,14 +15,14 @@ public class ProcessTimeLoggingMiddleware {
     public static HashMap<Context, Instant> sessions = new HashMap<>();
 
     /**
-     * Middleware to record start time of request.
+     * Middleware to record the start time of a request.
      */
     public static class Pre extends Middleware {
         @Override
         public void run(@NotNull Context context) throws IOException {
-            if(context.session != null) {
-                ProcessLoggingSessionData plsd = context.session.get(ProcessLoggingSessionData.class);
-                plsd.start = Instant.now();
+            if (context.session != null) {
+                ProcessLoggingSessionData data = context.session.get(ProcessLoggingSessionData.class);
+                data.start = Instant.now();
             } else {
                 sessions.put(context, Instant.now());
             }
@@ -30,7 +30,7 @@ public class ProcessTimeLoggingMiddleware {
     }
 
     /**
-     * Middleware to record end time of request and print it.
+     * Middleware to record the end time of a request and print it.
      */
     public static class Post extends Middleware {
 
@@ -41,9 +41,9 @@ public class ProcessTimeLoggingMiddleware {
 
         @Override
         public void run(@NotNull Context context) throws IOException {
-            if(context.session != null) {
-                ProcessLoggingSessionData plsd = context.session.get(ProcessLoggingSessionData.class);
-                System.out.println("Process time: " + context.request.url + " " + (Instant.now().toEpochMilli() - plsd.start.toEpochMilli()) + "ms");
+            if (context.session != null) {
+                ProcessLoggingSessionData data = context.session.get(ProcessLoggingSessionData.class);
+                System.out.println("Process time: " + context.request.url + " " + (Instant.now().toEpochMilli() - data.start.toEpochMilli()) + "ms");
             } else {
                 System.out.println("Process time: " + context.request.url + " " + (Instant.now().toEpochMilli() - sessions.get(context).toEpochMilli()) + "ms");
             }

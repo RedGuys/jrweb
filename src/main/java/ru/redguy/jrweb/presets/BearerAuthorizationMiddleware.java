@@ -6,12 +6,13 @@ import ru.redguy.jrweb.utils.*;
 
 import java.io.IOException;
 
-public class BearerAuthorizationMiddleware extends Middleware {
+public class BearerAuthorizationMiddleware extends AuthorizationMiddleware {
 
     private final AuthorizationChecker checker;
 
     /**
      * Bearer authorization middleware.
+     *
      * @param checker checker realization.
      */
     public BearerAuthorizationMiddleware(AuthorizationChecker checker) {
@@ -20,7 +21,8 @@ public class BearerAuthorizationMiddleware extends Middleware {
 
     /**
      * Bearer authorization middleware.
-     * @param method http method to check.
+     *
+     * @param method  http method to check.
      * @param checker checker realization.
      */
     public BearerAuthorizationMiddleware(Method method, AuthorizationChecker checker) {
@@ -30,26 +32,16 @@ public class BearerAuthorizationMiddleware extends Middleware {
 
     @Override
     public void run(Context ctx) throws IOException {
-        HeaderValue headerValue = ctx.request.headers.getFirst(Headers.Request.AUTHORIZATION);
-        if (headerValue == null) {
+        AuthorizationData authorizationData = getAuthorizationData(ctx);
+        if (authorizationData == null) {
             restrict(ctx);
             return;
         }
-        String value = headerValue.getValue();
-        if (value == null) {
+        if (!authorizationData.type.equals("Bearer")) {
             restrict(ctx);
             return;
         }
-        String[] split = value.split(" ");
-        if (split.length != 2) {
-            restrict(ctx);
-            return;
-        }
-        if (!split[0].equals("Bearer")) {
-            restrict(ctx);
-            return;
-        }
-        if (!checker.check(split[1])) {
+        if (!checker.check(authorizationData.payload)) {
             restrict(ctx);
         }
     }
@@ -69,8 +61,9 @@ public class BearerAuthorizationMiddleware extends Middleware {
     public interface AuthorizationChecker {
         /**
          * Check credentials.
+         *
          * @param token token to check.
-         * @return true if credentials is valid.
+         * @return true if credentials are valid.
          */
         boolean check(String token);
     }

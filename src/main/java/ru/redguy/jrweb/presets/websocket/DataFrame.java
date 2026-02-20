@@ -5,21 +5,14 @@ import org.jetbrains.annotations.Nullable;
 import ru.redguy.jrweb.utils.AsynchronousSocketReader;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.nio.ByteBuffer;
-import java.nio.channels.AsynchronousSocketChannel;
 import java.nio.charset.StandardCharsets;
 import java.util.concurrent.ExecutionException;
 
 public class DataFrame {
 
     public enum PacketType {
-        CONTINUATION,
-        TEXT,
-        BINARY,
-        CLOSE,
-        PING,
-        PONG
+        CONTINUATION, TEXT, BINARY, CLOSE, PING, PONG
     }
 
     private static final int MASK_BIT = 0x80;
@@ -103,8 +96,7 @@ public class DataFrame {
     }
 
     public byte[] getPayloadBytes() {
-        if (type == PacketType.BINARY || type == PacketType.TEXT)
-            return payload;
+        if (type == PacketType.BINARY || type == PacketType.TEXT) return payload;
         else return null;
     }
 

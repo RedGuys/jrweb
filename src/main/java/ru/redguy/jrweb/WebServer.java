@@ -179,7 +179,7 @@ public class WebServer {
             if (method.isAnnotationPresent(ru.redguy.jrweb.annotations.Middleware.class)) {
                 ru.redguy.jrweb.annotations.Middleware middlewareAnnotation = method.getAnnotation(ru.redguy.jrweb.annotations.Middleware.class);
                 if (middlewareAnnotation == null) continue;
-                Middleware middleware = new Middleware(Methods.getMethod(middlewareAnnotation.method())) {
+                Middleware middleware = new Middleware(Methods.getMethod(middlewareAnnotation.method()), middlewareAnnotation.position()) {
                     @Override
                     public void run(Context context) throws IOException {
                         try {

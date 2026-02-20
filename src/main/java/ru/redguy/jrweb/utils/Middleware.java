@@ -16,7 +16,13 @@ public abstract class Middleware {
     }
 
     public Middleware(Method method) {
+        this();
         this.method = method;
+    }
+
+    public Middleware(Method method, MiddlewarePosition position) {
+        this(method);
+        this.position = position;
     }
 
     public Middleware setRegex(String regex) {

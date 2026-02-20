@@ -2,10 +2,10 @@ package ru.redguy.jrweb.presets.websocket;
 
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import ru.redguy.jrweb.Context;
 import ru.redguy.jrweb.utils.*;
 
-import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -21,17 +21,13 @@ import java.util.concurrent.TimeUnit;
  * Websocket implementation.
  */
 public class WebSocket extends Page {
-    private static final int MAX_QUEUE_SIZE = 1000; // Prevent unbounded queue growth
     private final Map<Context, WebSocketConnection> connections = new ConcurrentHashMap<>();
     private static final long PING_INTERVAL_MS = 30000; // 30 seconds
+    private static final String WEBSOCKET_UPGRADE_KEY = "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
     private final ScheduledExecutorService pingScheduler = Executors.newSingleThreadScheduledExecutor();
 
     public WebSocket(String regex) {
         super(regex);
-    }
-
-    public WebSocket(Method method, String regex) {
-        super(method, regex);
     }
 
     //  0                   1                   2                   3
@@ -52,8 +48,6 @@ public class WebSocket extends Page {
     //     + - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
     //     |                     Payload Data continued ...                |
     //     +---------------------------------------------------------------+
-
-    // pesdec
 
     @Override
     public void run(Context context) throws Exception {
@@ -82,18 +76,27 @@ public class WebSocket extends Page {
         }
     }
 
-    private boolean isWebSocketUpgradeRequest(Context context) {
-        return context.request.headers.has(Headers.Common.CONNECTION) &&
-               context.request.headers.getFirst(Headers.Common.CONNECTION).getValue().equalsIgnoreCase("upgrade") &&
-               context.request.headers.has(Headers.Common.UPGRADE) &&
-               context.request.headers.getFirst(Headers.Common.UPGRADE).getValue().equalsIgnoreCase("websocket");
+    private boolean isWebSocketUpgradeRequest(@NotNull Context context) {
+        HeadersList headers = context.request.headers;
+
+        if (!headers.has(Headers.Common.CONNECTION) || !headers.has(Headers.Common.UPGRADE)) {
+            return false;
+        }
+
+        String connectionHeader = headers.getFirst(Headers.Common.CONNECTION).getValue();
+        String upgradeHeader = headers.getFirst(Headers.Common.UPGRADE).getValue();
+
+        return connectionHeader != null && connectionHeader.equalsIgnoreCase("upgrade") && upgradeHeader != null && upgradeHeader.equalsIgnoreCase("websocket");
     }
 
-    private void upgradeToWebSocket(Context context) throws NoSuchAlgorithmException, IOException {
+    private void upgradeToWebSocket(@NotNull Context context) throws NoSuchAlgorithmException {
+        String key = context.request.headers.getFirst(Headers.Request.SEC_WEBSOCKET_KEY).getValue();
+        if (key == null) return;
+
+        key = key.trim() + WEBSOCKET_UPGRADE_KEY;
+        key = Base64.getEncoder().encodeToString(MessageDigest.getInstance("SHA1").digest(key.getBytes(StandardCharsets.UTF_8)));
+
         context.response.setStatusCode(StatusCodes.SWITCHING_PROTOCOLS("websocket", "Upgrade"));
-        String key = context.request.headers.getFirst(Headers.Request.SEC_WEBSOCKET_KEY).getValue().trim();
-        key = key + "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
-        key = Base64.getEncoder().encodeToString(MessageDigest.getInstance("SHA1").digest(key.getBytes("UTF-8")));
         context.response.getHeaders().add(Headers.Response.SEC_WEBSOCKET_ACCEPT, key);
         context.response.flushHeaders();
 
@@ -117,7 +120,7 @@ public class WebSocket extends Page {
         }, PING_INTERVAL_MS, PING_INTERVAL_MS, TimeUnit.MILLISECONDS);
     }
 
-    private DataFrame readNextFrame(Context context) {
+    private @Nullable DataFrame readNextFrame(Context context) {
         try {
             return DataFrame.parseDataFrame(context.reader);
         } catch (Exception e) {
@@ -142,9 +145,7 @@ public class WebSocket extends Page {
                 default:
                     break;
             }
-        } catch (Exception e) {
-            // Log error but don't throw as this is cleanup code
-            e.printStackTrace();
+        } catch (Exception ignored) {
         }
     }
 
@@ -155,28 +156,25 @@ public class WebSocket extends Page {
                 conn.setOpened(false);
                 onClose(context);
             }
-        } catch (Exception e) {
-            // Log error but don't throw as this is cleanup code
-            e.printStackTrace();
+        } catch (Exception ignored) {
         }
     }
 
-    private static byte[] createPingFrame() {
+    @Contract(pure = true)
+    private static byte @NotNull [] createPingFrame() {
         byte[] frame = new byte[2];
-        frame[0] = (byte) 0x89; // FIN bit + Ping frame
-        frame[1] = 0; // Zero payload length
+        frame[0] = (byte) 0x89;
         return frame;
     }
 
-    private void sendPong(Context context) throws Exception {
+    private void sendPong(@NotNull Context context) throws Exception {
         byte[] frame = new byte[2];
-        frame[0] = (byte) 0x8A; // FIN bit + Pong frame
-        frame[1] = 0; // Zero payload length
+        frame[0] = (byte) 0x8A;
         context.outputStream.write(frame);
     }
 
     /**
-     * Callback for new messages from client
+     * Callback for new messages from a client
      *
      * @param ctx   connection context
      * @param frame received dataframe
@@ -187,7 +185,7 @@ public class WebSocket extends Page {
             if (conn != null && conn.isOpen()) {
                 try {
                     if (!conn.getDataFrames().offer(frame)) {
-                        // Queue is full, close connection to prevent memory issues
+                        // Queue is a full, close connection to prevent memory issues
                         cleanupConnection(ctx);
                     }
                 } catch (Exception e) {
@@ -223,6 +221,18 @@ public class WebSocket extends Page {
     public static void send(@NotNull Context context, @NotNull String text) throws Exception {
         context.outputStream.write(createHeaderBytes(text.getBytes(StandardCharsets.UTF_8).length));
         context.outputStream.write(text.getBytes(StandardCharsets.UTF_8));
+    }
+
+    /**
+     * Sends bytes data to a client
+     *
+     * @param context connection context
+     * @param payload data to send
+     * @throws Exception throws if connection broken
+     */
+    public static void send(@NotNull Context context, byte @NotNull [] payload) throws Exception {
+        context.outputStream.write(createHeaderBytes(payload.length));
+        context.outputStream.write(payload);
     }
 
     public static void close(@NotNull Context context) throws Exception {
@@ -313,7 +323,7 @@ public class WebSocket extends Page {
      * @param ctx connection context
      */
     public void onClose(Context ctx) {
-        if (connections.containsKey(ctx)) connections.get(ctx).opened = false;
+        if (connections.containsKey(ctx)) connections.get(ctx).cleanup();
         connections.remove(ctx);
     }
 
@@ -330,9 +340,9 @@ public class WebSocket extends Page {
     }
 
     /**
-     * Callback for connection version
+     * Callback for a connection version
      *
-     * @param connection WebSocket connection to client
+     * @param connection WebSocket connection to a client
      */
     public void onOpen(WebSocketConnection connection) {
         //Do nothing

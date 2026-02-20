@@ -3,7 +3,6 @@ package ru.redguy.jrweb.presets.websocket;
 import org.jetbrains.annotations.Nullable;
 import ru.redguy.jrweb.Context;
 
-import java.io.IOException;
 import java.util.concurrent.LinkedBlockingQueue;
 
 public class WebSocketConnection {
@@ -32,6 +31,13 @@ public class WebSocketConnection {
     }
 
     public void write(String data) throws Exception {
+        if (!isOpen()) {
+            throw new IllegalStateException("Connection is closed");
+        }
+        WebSocket.send(context, data);
+    }
+
+    public void write(byte[] data) throws Exception {
         if (!isOpen()) {
             throw new IllegalStateException("Connection is closed");
         }

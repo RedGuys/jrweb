@@ -3,6 +3,7 @@ package ru.redguy.jrweb.presets;
 import org.jetbrains.annotations.NotNull;
 import ru.redguy.jrweb.Context;
 import ru.redguy.jrweb.utils.Headers;
+import ru.redguy.jrweb.utils.MiscUtils;
 import ru.redguy.jrweb.utils.Router;
 import ru.redguy.jrweb.utils.StatusCodes;
 
@@ -17,7 +18,8 @@ public class ResourcesRouter extends Router {
 
     /**
      * Router for resources.
-     * @param pattern pattern to match.
+     *
+     * @param pattern     pattern to match.
      * @param contentRoot content root.
      */
     public ResourcesRouter(String pattern, String contentRoot) {
@@ -30,10 +32,9 @@ public class ResourcesRouter extends Router {
         if (!this.pattern.matcher(context.request.url.substring(path.length())).find() && !Objects.equals(pattern.toString(), ""))
             return;
 
-        String fPath = context.request.url.substring(path.length() + pattern.toString().length());
-        if (fPath.startsWith("/") || fPath.startsWith("\\")) fPath = fPath.substring(1);
+        String fPath = MiscUtils.formatPath(context, path, pattern);
 
-        InputStream is = getClass().getClassLoader().getResourceAsStream(contentRoot+"/"+fPath);
+        InputStream is = getClass().getClassLoader().getResourceAsStream(contentRoot + "/" + fPath);
         if (is != null) {
             context.response.setStatusCode(StatusCodes.OK);
             try {
@@ -63,8 +64,7 @@ public class ResourcesRouter extends Router {
 
         try {
             try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
-                while ((readLen = inputStream.read(buf, 0, bufLen)) != -1)
-                    outputStream.write(buf, 0, readLen);
+                while ((readLen = inputStream.read(buf, 0, bufLen)) != -1) outputStream.write(buf, 0, readLen);
 
                 return outputStream.toByteArray();
             }

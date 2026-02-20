@@ -120,6 +120,15 @@ public class SimpleWebServer {
             }
         });
 
+        server.addMiddleware(new BearerAuthorizationMiddleware((token) -> token.equals("mememe"))
+                .setRegex("/token"));
+        server.addPage(new Page("/token") {
+            @Override
+            public void run(Context context) throws IOException {
+                context.response.send("<html><body>Authorized</body></html>");
+            }
+        });
+
         server.addPage(new Page("/count") {
             @Override
             public void run(Context context) throws IOException {
@@ -139,8 +148,13 @@ public class SimpleWebServer {
             public void onOpen(WebSocketConnection connection) {
                 new Thread(() -> {
                     try {
-                        DataFrame read = connection.awaitRead();
-                        connection.write(read.getPayloadText());
+                        DataFrame read = connection.read(); //Just for example, try to read instantly
+                        if(read == null) read = connection.awaitRead(); //if frames not available, wait
+                        if(read.getType() == DataFrame.PacketType.TEXT) {
+                            connection.write(read.getPayloadText());
+                        } else {
+                            connection.write(read.getPayloadBytes());
+                        }
                         connection.close(1000, "Only one packet");
                     } catch (Exception e) {
                         throw new RuntimeException(e);
